@@ -3,7 +3,10 @@ package com.rulerofnightmares.game;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.entity.Entity;
+
+import javafx.scene.Node;
 
 public class Game extends GameApplication {
 
@@ -23,6 +26,11 @@ public class Game extends GameApplication {
 	protected void initGame(){
 
 		getGameWorld().addEntityFactory(new EntitiesFactory());
+
+		//set template background 1440x1776 
+		Node node = getAssetLoader().loadTexture("template_dev_map.png");
+		GameView view = new GameView(node,0);
+		getGameScene().addGameView(view);
 
 		player = spawn("Player",100,100);
 
