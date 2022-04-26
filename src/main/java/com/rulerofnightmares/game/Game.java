@@ -5,8 +5,10 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.entity.Entity;
+import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
 import javafx.scene.Node;
+import javafx.scene.input.KeyCode;
 
 public class Game extends GameApplication {
 
@@ -20,6 +22,20 @@ public class Game extends GameApplication {
 		settings.setTitle("Ruler of Nightmares");
 		settings.setWidth(800);
 		settings.setHeight(600);
+	}
+
+	@Override
+	protected void initInput() {
+		onKey(KeyCode.W, () -> player.getComponent(PlayerAnimationComponent.class).moveUp());
+		
+		onKey(KeyCode.S, () -> player.getComponent(PlayerAnimationComponent.class).moveDown());
+		
+		onKey(KeyCode.A, () -> player.getComponent(PlayerAnimationComponent.class).moveLeft());
+		
+		onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
+		
+		onKey(KeyCode.SPACE, () -> player.getComponent(PlayerAnimationComponent.class).attack());
+		
 	}
 
 	@Override
