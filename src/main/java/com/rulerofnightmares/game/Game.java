@@ -50,6 +50,12 @@ public class Game extends GameApplication {
 
 		player = spawn("Player",100,100);
 
+		//przypisanie "kamery" do pozycji gracza
+		getGameScene().getViewport().bindToEntity(player,getSettings().getActualWidth()/2
+														,getSettings().getActualHeight()/2);
+		//ustawienie granic kamery
+		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
+
 	}
 
 	public static void main(String[] args) {
