@@ -34,7 +34,7 @@ public class Game extends GameApplication {
 
 		onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
 
-		onKey(KeyCode.SPACE, () -> player.getComponent(PlayerAnimationComponent.class).attack());
+		onKeyDown(KeyCode.SPACE, () -> player.getComponent(PlayerAnimationComponent.class).attack());
 
 	}
 

@@ -37,7 +37,7 @@ public class PlayerAnimationComponent extends Component {
         entity.translateX(speed * tpf);
         entity.translateY(v_speed * tpf);
         
-        if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
+        if(isAttacking == 1) {
         	texture.playAnimationChannel(animAttack);
         	isAttacking = 0;
         }
