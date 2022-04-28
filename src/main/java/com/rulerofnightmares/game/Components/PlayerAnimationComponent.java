@@ -23,6 +23,10 @@ public class PlayerAnimationComponent extends Component {
         animAttack = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(0.5),27,35);
 
         texture = new AnimatedTexture(animIdle);
+
+        texture.setOnCycleFinished( () ->{
+            isAttacking = 0;
+        } );
     }
 
   
@@ -30,6 +34,7 @@ public class PlayerAnimationComponent extends Component {
     public void onAdded() {
         entity.getTransformComponent().setScaleOrigin(new Point2D(16, 16));
         entity.getViewComponent().addChild(texture);
+        
     }
 
     @Override
@@ -37,15 +42,13 @@ public class PlayerAnimationComponent extends Component {
         entity.translateX(speed * tpf);
         entity.translateY(v_speed * tpf);
         
-        if(isAttacking == 1) {
+        if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
         	texture.playAnimationChannel(animAttack);
-        	isAttacking = 0;
         }
-        
 
         if (speed != 0 || v_speed != 0) {
         	
-            if (texture.getAnimationChannel() == animIdle) {
+            if (texture.getAnimationChannel() != animWalk&&isAttacking == 0) {
                 texture.loopAnimationChannel(animWalk);
             }
 

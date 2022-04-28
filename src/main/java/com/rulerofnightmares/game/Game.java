@@ -20,8 +20,8 @@ public class Game extends GameApplication {
 		// pod klawiszem "1" menu, w którym można zaznaczać hitboxy itp.
 		settings.setDeveloperMenuEnabled(true);
 		settings.setTitle("Ruler of Nightmares");
-		settings.setWidth(800);
-		settings.setHeight(600);
+		settings.setWidth(1280);
+		settings.setHeight(720);
 	}
 
 	@Override
