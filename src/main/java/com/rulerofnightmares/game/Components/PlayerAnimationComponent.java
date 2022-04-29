@@ -61,6 +61,7 @@ public class PlayerAnimationComponent extends Component {
                 texture.loopAnimationChannel(animIdle);
             }
         }
+        else if(isAttacking == 0 ) texture.loopAnimationChannel(animIdle);
     }
 
     public void moveRight() {
@@ -77,14 +78,10 @@ public class PlayerAnimationComponent extends Component {
     
     public void moveUp() {
         v_speed = -150;
-
-        getEntity().setScaleX(1);
     }
 
     public void moveDown() {
         v_speed = 150;
-
-        getEntity().setScaleX(-1);
     }
     
     public void attack() {

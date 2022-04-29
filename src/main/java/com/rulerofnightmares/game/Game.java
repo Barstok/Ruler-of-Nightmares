@@ -4,10 +4,8 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
-import com.almasb.fxgl.core.collection.Array;
 import com.almasb.fxgl.entity.Entity;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
-import com.rulerofnightmares.game.EntitiesFactory.*;
 
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
@@ -50,8 +48,6 @@ public class Game extends GameApplication {
 		Node node = getAssetLoader().loadTexture("template_dev_map.png");
 		GameView view = new GameView(node, 0);
 		getGameScene().addGameView(view);
-
-
 
 		player = spawn("Player", 100, 100);
 		monster = spawn("Monster", 250, 250);

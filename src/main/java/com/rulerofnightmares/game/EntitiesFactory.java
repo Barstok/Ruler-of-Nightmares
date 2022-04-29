@@ -30,7 +30,8 @@ public class EntitiesFactory implements EntityFactory {
 	public Entity newMonster(SpawnData data) {
 		return FXGL.entityBuilder(data)
 				.type(EntityType.ENEMY)
-				.bbox(new HitBox(new Point2D(6,8),BoundingShape.box(16,24)))
+				//		punkt początkowy względem początku calego wycinka png || kwadrat 16x30 czyli pi razy drzwi rzeczywisty wymiar postaci
+				.bbox(new HitBox(new Point2D(48,64.5),BoundingShape.box(16,30)))
 				.with(new MonsterAnimationComponent())
 				.with(new CollidableComponent(true))
 				.build();
