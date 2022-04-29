@@ -32,7 +32,7 @@ public class MonsterAnimationComponent extends Component {
 
     public MonsterAnimationComponent() {
         animIdle = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
-                Duration.seconds(1), 1, 1);
+                Duration.seconds(1), 0, 1);
         animWalk = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
                 Duration.seconds(1), 1, 24);
         animAttack = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
