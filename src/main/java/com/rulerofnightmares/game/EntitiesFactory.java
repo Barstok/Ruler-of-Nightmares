@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.HitBox;
+import com.rulerofnightmares.game.Components.MonsterAnimationComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
 import javafx.geometry.Point2D;
@@ -23,5 +24,16 @@ public class EntitiesFactory implements EntityFactory {
 				.with(new PlayerAnimationComponent())
 				.with(new CollidableComponent(true))
 				.build();
+	}
+
+	@Spawns("Monster")
+	public Entity newMonster(SpawnData data) {
+		return FXGL.entityBuilder(data)
+				.type(EntityType.ENEMY)
+				.bbox(new HitBox(new Point2D(6,8),BoundingShape.box(16,24)))
+				.with(new MonsterAnimationComponent())
+				.with(new CollidableComponent(true))
+				.build();
+
 	}
 }
