@@ -4,8 +4,10 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
+import com.almasb.fxgl.core.collection.Array;
 import com.almasb.fxgl.entity.Entity;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
+import com.rulerofnightmares.game.EntitiesFactory.*;
 
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
@@ -13,6 +15,7 @@ import javafx.scene.input.KeyCode;
 public class Game extends GameApplication {
 
 	private Entity player;
+	private Entity monster;
 
 	@Override
 	protected void initSettings(GameSettings settings) {
@@ -48,7 +51,10 @@ public class Game extends GameApplication {
 		GameView view = new GameView(node, 0);
 		getGameScene().addGameView(view);
 
+
+
 		player = spawn("Player", 100, 100);
+		monster = spawn("Monster", 250, 250);
 
 		// przypisanie "kamery" do pozycji gracza
 		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,
