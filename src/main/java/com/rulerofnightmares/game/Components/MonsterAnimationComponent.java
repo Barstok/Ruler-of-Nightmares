@@ -19,11 +19,17 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 
 public class MonsterAnimationComponent extends Component {
 
+    private final double RED_RIDING_HOOD_ANIMATION_DURATION = 1;
+
     private int speed = 0;
 
     private int hp = 100;
     private int v_speed = 0;
     private int isAttacking = 0;
+
+    private boolean isAttacked;
+
+    private TimerAction AI;
 
     List<Entity> players = FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER);
 
@@ -32,13 +38,14 @@ public class MonsterAnimationComponent extends Component {
 
     public MonsterAnimationComponent() {
         animIdle = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
-                Duration.seconds(1), 0, 1);
+                Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 0, 1);
         animWalk = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
-                Duration.seconds(1), 1, 24);
+                Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 1, 24);
         animAttack = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
-                Duration.seconds(1), 59, 78);
+                Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 59, 78);
+        //poniższa animacja nie działa, nie wiem dlaczego
         animTakeDmg = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
-                Duration.seconds(1), 120, 126);
+                Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 120, 126);
 
         texture = new AnimatedTexture(animIdle);
     }
@@ -53,23 +60,22 @@ public class MonsterAnimationComponent extends Component {
 
     public void receiveDmgNormalAttack() {
         this.hp -= 50;
+        isAttacked = true;
     }
 
     // pi razy drzwi działające AI, nie czuje ale rymuje, fakt faktem ten kod
     // optymalizacji potrzebuje
     public void startAI() {
-        TimerAction AI = getGameTimer().runAtInterval(() -> {
+        AI = getGameTimer().runAtInterval(() -> {
             for (int i = 0; i < players.size(); i++) {
                 Entity player = players.get(i);
-                if (player.isActive()) {
+                if (player.isActive() && entity != null) {
                     if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) <= 10
                             && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) <= 10) {
-                        System.out.println("Atakuj chuja");
-                        player.getComponent(PlayerAnimationComponent.class).receiveDmg(1);
+                        player.getComponent(PlayerAnimationComponent.class).receiveDmg(2);
                         this.attack();
                     } else if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) < 100
                             && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) < 100) {
-                        System.out.println("Goń cwela");
                         if (player.getCenter().getX() - entity.getCenter().getX() >= 5) {
                             this.moveRight();
                         } else if (player.getCenter().getX() - entity.getCenter().getX() <= -5) {
@@ -81,13 +87,9 @@ public class MonsterAnimationComponent extends Component {
                             this.moveUp();
                         }
                     }
-                    else System.out.println("Nikogo ni ma");
                 }
             }
         }, Duration.millis(100));
-        if (this.hp == 0) {
-            AI.pause();
-        }
     }
 
     @Override
@@ -97,6 +99,7 @@ public class MonsterAnimationComponent extends Component {
         // texture.playAnimationChannel(animSpawn);
         texture.loopAnimationChannel(animIdle);
         getGameTimer().runOnceAfter(this::startAI, Duration.seconds(1));
+        isAttacked = false;
 
         texture.setOnCycleFinished(() -> {
             isAttacking = 0;
@@ -107,8 +110,18 @@ public class MonsterAnimationComponent extends Component {
     public void onUpdate(double tpf) {
         entity.translateX(speed * tpf);
         entity.translateY(v_speed * tpf);
-        if (this.hp == 0) {
-            entity.removeFromWorld();
+        if (this.isAttacked) {
+            texture.playAnimationChannel(animTakeDmg);
+            if (this.hp <= 0) {
+//                AI.pause();
+//                texture.playAnimationChannel(animWalk);
+//                getGameTimer().runOnceAfter(() -> {
+//                    if (entity != null) {
+//                        entity.removeFromWorld();
+//                    }
+//                }, Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION));
+                entity.removeFromWorld();
+            }
         }
 
         if (isAttacking == 1 && texture.getAnimationChannel() != animAttack) {

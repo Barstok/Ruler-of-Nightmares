@@ -5,10 +5,14 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.physics.CollisionHandler;
+import com.rulerofnightmares.game.Components.MonsterAnimationComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
+import javafx.util.Duration;
 
 public class Game extends GameApplication {
 
@@ -35,8 +39,20 @@ public class Game extends GameApplication {
 
 		onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
 
-		onKeyDown(KeyCode.SPACE, () -> player.getComponent(PlayerAnimationComponent.class).attack());
+		onKeyDown(KeyCode.SPACE, () -> {
+			player.getComponent(PlayerAnimationComponent.class).attack();
+		});
+	}
 
+
+	@Override
+	protected void initPhysics() {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY) {
+			@Override
+			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
+				enemy.getComponent(MonsterAnimationComponent.class).receiveDmgNormalAttack();
+			}
+		});
 	}
 
 	@Override
