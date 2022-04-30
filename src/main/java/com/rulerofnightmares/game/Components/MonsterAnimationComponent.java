@@ -111,7 +111,6 @@ public class MonsterAnimationComponent extends Component {
         entity.translateX(speed * tpf);
         entity.translateY(v_speed * tpf);
         if (this.isAttacked) {
-            texture.playAnimationChannel(animTakeDmg);
             if (this.hp <= 0) {
 //                AI.pause();
 //                texture.playAnimationChannel(animWalk);

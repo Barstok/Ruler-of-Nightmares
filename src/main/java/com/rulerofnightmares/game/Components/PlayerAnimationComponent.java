@@ -6,6 +6,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.*;
 
+import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
@@ -13,7 +14,6 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 
 public class PlayerAnimationComponent extends Component {
-
     public static final double ATTACK_ANIMATION_DURATION = 0.5;
     private int speed = 0;
     private int v_speed = 0;
@@ -87,11 +87,11 @@ public class PlayerAnimationComponent extends Component {
                 texture.playAnimationChannel(animAttack);
             }
 
-            if (isAttacked) {
-                //tutaj nie działa
-                texture.playAnimationChannel(animAttacked);
-                this.isAttacked = false;
-            }
+//            if (isAttacked) {
+//                //tutaj nie działa
+//                texture.playAnimationChannel(animAttacked);
+//                this.isAttacked = false;
+//            }
 
             if (speed != 0 || v_speed != 0) {
 
@@ -134,8 +134,10 @@ public class PlayerAnimationComponent extends Component {
     }
     
     public void attack() {
-    	isAttacking = 1;
-        Entity normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
-        getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(1));
+        if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
+            isAttacking = 1;
+            Entity normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
+            getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
+        }
     }
 }
