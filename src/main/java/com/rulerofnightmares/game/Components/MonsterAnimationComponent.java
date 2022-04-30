@@ -51,36 +51,43 @@ public class MonsterAnimationComponent extends Component {
         this.hp = hp;
     }
 
+    public void receiveDmgNormalAttack() {
+        this.hp -= 50;
+    }
+
     // pi razy drzwi działające AI, nie czuje ale rymuje, fakt faktem ten kod
     // optymalizacji potrzebuje
     public void startAI() {
         TimerAction AI = getGameTimer().runAtInterval(() -> {
             for (int i = 0; i < players.size(); i++) {
                 Entity player = players.get(i);
-                if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) <= 10
-                        && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) <= 10) {
-                    System.out.println("Atakuj chuja");
-                    this.attack();
-                } else if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) < 100
-                        && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) < 100) {
-                    System.out.println("Goń cwela");
-                    if (player.getCenter().getX() - entity.getCenter().getX() >= 5) {
-                        this.moveRight();
-                    } else if (player.getCenter().getX() - entity.getCenter().getX() <= -5) {
-                        this.moveLeft();
+                if (player.isActive()) {
+                    if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) <= 10
+                            && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) <= 10) {
+                        System.out.println("Atakuj chuja");
+                        player.getComponent(PlayerAnimationComponent.class).receiveDmg(1);
+                        this.attack();
+                    } else if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) < 100
+                            && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) < 100) {
+                        System.out.println("Goń cwela");
+                        if (player.getCenter().getX() - entity.getCenter().getX() >= 5) {
+                            this.moveRight();
+                        } else if (player.getCenter().getX() - entity.getCenter().getX() <= -5) {
+                            this.moveLeft();
+                        }
+                        if (player.getCenter().getY() - entity.getCenter().getY() >= 5) {
+                            this.moveDown();
+                        } else if (player.getCenter().getY() - entity.getCenter().getY() <= -5) {
+                            this.moveUp();
+                        }
                     }
-                    if (player.getCenter().getY() - entity.getCenter().getY() >= 5) {
-                        this.moveDown();
-                    } else if (player.getCenter().getY() - entity.getCenter().getY() <= -5) {
-                        this.moveUp();
-                    }
+                    else System.out.println("Nikogo ni ma");
                 }
-                else System.out.println("Nikogo ni ma");
             }
         }, Duration.millis(100));
-        // if (this.hp == 0) {
-        // AI.pause();
-        // }
+        if (this.hp == 0) {
+            AI.pause();
+        }
     }
 
     @Override
@@ -100,6 +107,9 @@ public class MonsterAnimationComponent extends Component {
     public void onUpdate(double tpf) {
         entity.translateX(speed * tpf);
         entity.translateY(v_speed * tpf);
+        if (this.hp == 0) {
+            entity.removeFromWorld();
+        }
 
         if (isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
             texture.playAnimationChannel(animAttack);
