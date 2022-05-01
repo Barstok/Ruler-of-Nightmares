@@ -2,5 +2,6 @@ package com.rulerofnightmares.game;
 
 public enum EntityType {
     PLAYER,
-    ENEMY
+    ENEMY,
+    PLAYER_NORMAL_ATTACK
 }

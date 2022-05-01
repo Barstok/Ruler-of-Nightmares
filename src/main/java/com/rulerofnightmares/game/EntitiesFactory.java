@@ -37,4 +37,13 @@ public class EntitiesFactory implements EntityFactory {
 				.build();
 
 	}
+
+	@Spawns("PlayerNormalAttack")
+	public Entity newPlayerNormalAttack(SpawnData data) {
+		return FXGL.entityBuilder(data)
+				.type(EntityType.PLAYER_NORMAL_ATTACK)
+				.bbox(new HitBox(new Point2D(-5.5, -7), BoundingShape.box(15, 17)))
+				.with(new CollidableComponent(true))
+				.build();
+	}
 }
