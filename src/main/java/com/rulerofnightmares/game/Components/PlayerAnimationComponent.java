@@ -10,10 +10,15 @@ import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 
 public class PlayerAnimationComponent extends Component {
+
+    public static final Map<Integer, Integer> LEVELS_EXP_MAP = Map.of(1, 100, 2, 200, 3, 300, 4, 400, 5, 500, 6, 600);
     public static final double ATTACK_ANIMATION_DURATION = 0.5;
     private int speed = 0;
     private int v_speed = 0;
@@ -24,6 +29,24 @@ public class PlayerAnimationComponent extends Component {
     private int hp;
 
     private int xp;
+
+    public int getMp() {
+        return mp;
+    }
+
+    public void setMp(int mp) {
+        this.mp = mp;
+    }
+
+    public void regenerateMp() {
+        if (this.mp >= 100) return;
+        if (this.mp + 5 >= 100) this.mp = 100;
+        else this.mp += 5;
+    }
+
+    private int mp;
+
+    private int currentLevel;
 
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalk, animAttack, animAttacked, animDeath;
@@ -46,10 +69,45 @@ public class PlayerAnimationComponent extends Component {
         return this.hp;
     }
 
+    public int getCurrentLevel() {
+        return this.currentLevel;
+    }
+
+    public void setCurrentLevel(int lvl) {
+        this.currentLevel = lvl;
+    }
+
+    public void incrementCurrentLevel() {
+        this.currentLevel++;
+    }
+
+    public int getXp() {
+        return this.xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public void incrementXp(int additionalXp) {
+        this.xp += additionalXp;
+    }
+
     public void regenerateHP() {
         if (this.hp < 100) {
             this.hp++;
         }
+    }
+
+    public boolean canAscend() {
+        if (currentLevel == 7) return false;
+        return this.xp >= LEVELS_EXP_MAP.get(currentLevel);
+    }
+
+    public void ascend() {
+        int tempXp = LEVELS_EXP_MAP.get(currentLevel);//xp potrzebne do awansowania
+        incrementCurrentLevel();
+        setXp(this.xp - tempXp);
     }
 
     public boolean isAttacking() {
@@ -73,7 +131,10 @@ public class PlayerAnimationComponent extends Component {
         this.isAttacked = false;
         this.hp = 100;
         this.xp = 0;
+        this.mp = 0;
+        this.currentLevel = 1;
         getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(2));
+        getGameTimer().runAtInterval(this::regenerateMp, Duration.seconds(1));
     }
 
     @Override
@@ -85,6 +146,9 @@ public class PlayerAnimationComponent extends Component {
             texture.playAnimationChannel(animDeath);
             getGameTimer().runOnceAfter(entity::removeFromWorld, Duration.seconds(1));
         }
+
+        if (canAscend()) ascend();
+
         if (texture.getAnimationChannel() != animDeath) {
             if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
                 texture.playAnimationChannel(animAttack);
