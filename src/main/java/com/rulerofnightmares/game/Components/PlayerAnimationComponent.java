@@ -227,7 +227,7 @@ public class PlayerAnimationComponent extends Component {
 
     public void dash() {
         //zakomentuj ifa by sprawdzić działanie
-        if (mp < 20 || currentLevel < 2) return;
+        // if (mp < 20 || currentLevel < 2) return;
         this.mp -= 20;
 //        FXGL.animationBuilder()
 //                .setOnFinished(() -> {
@@ -239,7 +239,7 @@ public class PlayerAnimationComponent extends Component {
 //                .from(new Point2D(entity.getX() + (speed == 0 ? 0 : DASH_TRANSLATE * entity.getScaleX()),
 //                        entity.getY() + getCorrectVerticalDashTranslation()))
 //                .build().start();
-        dashMultiplier = 7;
+        dashMultiplier = 4;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
         }, Duration.seconds(0.25));

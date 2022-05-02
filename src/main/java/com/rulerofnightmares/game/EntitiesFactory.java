@@ -11,6 +11,8 @@ import com.almasb.fxgl.physics.HitBox;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
 import com.rulerofnightmares.game.Components.RedRidingHoodAnimationComponent;
+import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
+
 import javafx.geometry.Point2D;
 
 public class EntitiesFactory implements EntityFactory {
@@ -23,6 +25,7 @@ public class EntitiesFactory implements EntityFactory {
 				.bbox(new HitBox(new Point2D(6,8),BoundingShape.box(16,24)))
 				.with(new PlayerAnimationComponent())
 				.with(new CollidableComponent(true))
+				.with(new HellCircle())
 				.build();
 	}
 

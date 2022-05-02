@@ -6,9 +6,12 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.physics.CollisionHandler;
+import com.rulerofnightmares.game.Components.DamageDealerComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
 import com.rulerofnightmares.game.Components.RedRidingHoodAnimationComponent;
+import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
+
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
@@ -53,8 +56,17 @@ public class Game extends GameApplication {
 		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY_RED_RIDING_HOOD) {
 			@Override
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
-				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack();
+				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack(50);
 				player.getComponent(PlayerAnimationComponent.class).incrementXp(20);
+			}
+		});
+
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.ENEMY_RED_RIDING_HOOD,EntityType.BULLET) {
+			@Override
+			protected void onCollisionBegin(Entity enemy, Entity bullet){
+				//troche sie syf narobil z "uniwersalnoscia", trzeba bedzie to przepisac sensowniej
+				int dmg = bullet.getComponent(DamageDealerComponent.class).dealDmg();
+				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack(dmg);
 			}
 		});
 	}
