@@ -6,16 +6,15 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.physics.CollisionHandler;
-import com.rulerofnightmares.game.Components.MonsterAnimationComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
+import com.rulerofnightmares.game.Components.RedRidingHoodAnimationComponent;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 public class Game extends GameApplication {
-
 	private Entity player;
 	private Entity monster;
 
@@ -42,15 +41,20 @@ public class Game extends GameApplication {
 		onKeyDown(KeyCode.SPACE, () -> {
 			player.getComponent(PlayerAnimationComponent.class).attack();
 		});
+
+		onKeyDown(KeyCode.Q, () -> {
+			player.getComponent(PlayerAnimationComponent.class).dash();
+		});
 	}
 
 
 	@Override
 	protected void initPhysics() {
-		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY) {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY_RED_RIDING_HOOD) {
 			@Override
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
-				enemy.getComponent(MonsterAnimationComponent.class).receiveDmgNormalAttack();
+				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack();
+				player.getComponent(PlayerAnimationComponent.class).incrementXp(20);
 			}
 		});
 	}
@@ -66,7 +70,7 @@ public class Game extends GameApplication {
 		getGameScene().addGameView(view);
 
 		player = spawn("Player", 100, 100);
-		monster = spawn("Monster", 250, 250);
+		monster = spawn("RedRidingHood", 250, 250);
 
 		// przypisanie "kamery" do pozycji gracza
 		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,

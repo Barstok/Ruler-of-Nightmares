@@ -1,6 +1,5 @@
 package com.rulerofnightmares.game.Components;
 
-import com.almasb.fxgl.core.collection.Array;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.component.Component;
@@ -17,7 +16,7 @@ import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 
-public class MonsterAnimationComponent extends Component {
+public class RedRidingHoodAnimationComponent extends Component {
 
     private final double RED_RIDING_HOOD_ANIMATION_DURATION = 1;
 
@@ -34,9 +33,10 @@ public class MonsterAnimationComponent extends Component {
     List<Entity> players = FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER);
 
     private AnimatedTexture texture;
+
     private AnimationChannel animIdle, animWalk, animAttack, animTakeDmg;
 
-    public MonsterAnimationComponent() {
+    public RedRidingHoodAnimationComponent() {
         animIdle = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
                 Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 0, 1);
         animWalk = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,

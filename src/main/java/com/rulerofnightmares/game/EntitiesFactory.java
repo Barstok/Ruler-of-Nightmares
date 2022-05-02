@@ -8,9 +8,9 @@ import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.HitBox;
-import com.rulerofnightmares.game.Components.MonsterAnimationComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
+import com.rulerofnightmares.game.Components.RedRidingHoodAnimationComponent;
 import javafx.geometry.Point2D;
 
 public class EntitiesFactory implements EntityFactory {
@@ -26,13 +26,13 @@ public class EntitiesFactory implements EntityFactory {
 				.build();
 	}
 
-	@Spawns("Monster")
+	@Spawns("RedRidingHood")
 	public Entity newMonster(SpawnData data) {
 		return FXGL.entityBuilder(data)
-				.type(EntityType.ENEMY)
+				.type(EntityType.ENEMY_RED_RIDING_HOOD)
 				//		punkt początkowy względem początku calego wycinka png || kwadrat 16x30 czyli pi razy drzwi rzeczywisty wymiar postaci
 				.bbox(new HitBox(new Point2D(48,64.5),BoundingShape.box(16,30)))
-				.with(new MonsterAnimationComponent())
+				.with(new RedRidingHoodAnimationComponent())
 				.with(new CollidableComponent(true))
 				.build();
 
