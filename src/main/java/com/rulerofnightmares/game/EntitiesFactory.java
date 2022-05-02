@@ -29,7 +29,7 @@ public class EntitiesFactory implements EntityFactory {
 	@Spawns("RedRidingHood")
 	public Entity newMonster(SpawnData data) {
 		return FXGL.entityBuilder(data)
-				.type(EntityType.ENEMY)
+				.type(EntityType.ENEMY_RED_RIDING_HOOD)
 				//		punkt początkowy względem początku calego wycinka png || kwadrat 16x30 czyli pi razy drzwi rzeczywisty wymiar postaci
 				.bbox(new HitBox(new Point2D(48,64.5),BoundingShape.box(16,30)))
 				.with(new RedRidingHoodAnimationComponent())

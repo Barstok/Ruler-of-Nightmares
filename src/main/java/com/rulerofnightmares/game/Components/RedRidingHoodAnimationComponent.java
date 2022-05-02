@@ -33,6 +33,7 @@ public class RedRidingHoodAnimationComponent extends Component {
     List<Entity> players = FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER);
 
     private AnimatedTexture texture;
+
     private AnimationChannel animIdle, animWalk, animAttack, animTakeDmg;
 
     public RedRidingHoodAnimationComponent() {

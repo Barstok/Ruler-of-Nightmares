@@ -15,7 +15,6 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 public class Game extends GameApplication {
-
 	private Entity player;
 	private Entity monster;
 
@@ -42,15 +41,20 @@ public class Game extends GameApplication {
 		onKeyDown(KeyCode.SPACE, () -> {
 			player.getComponent(PlayerAnimationComponent.class).attack();
 		});
+
+		onKeyDown(KeyCode.Q, () -> {
+			player.getComponent(PlayerAnimationComponent.class).dash();
+		});
 	}
 
 
 	@Override
 	protected void initPhysics() {
-		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY) {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY_RED_RIDING_HOOD) {
 			@Override
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
 				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack();
+				player.getComponent(PlayerAnimationComponent.class).incrementXp(20);
 			}
 		});
 	}

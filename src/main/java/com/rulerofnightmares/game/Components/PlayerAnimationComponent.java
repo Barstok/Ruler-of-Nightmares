@@ -1,22 +1,25 @@
 package com.rulerofnightmares.game.Components;
 
+import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.*;
 
+import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 
 public class PlayerAnimationComponent extends Component {
+
+    private final static double DASH_TRANSLATE = 150;
 
     public static final Map<Integer, Integer> LEVELS_EXP_MAP = Map.of(1, 100, 2, 200, 3, 300, 4, 400, 5, 500, 6, 600);
     public static final double ATTACK_ANIMATION_DURATION = 0.5;
@@ -46,10 +49,14 @@ public class PlayerAnimationComponent extends Component {
 
     private int mp;
 
+    private boolean animationLock;
+
     private int currentLevel;
 
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalk, animAttack, animAttacked, animDeath;
+
+    private int dashMultiplier;
 
     public PlayerAnimationComponent() {
         //animAttacked nie działa, nie wiem czemu
@@ -133,14 +140,16 @@ public class PlayerAnimationComponent extends Component {
         this.xp = 0;
         this.mp = 0;
         this.currentLevel = 1;
+        this.animationLock = false;
+        this.dashMultiplier = 1;
         getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(2));
         getGameTimer().runAtInterval(this::regenerateMp, Duration.seconds(1));
     }
 
     @Override
     public void onUpdate(double tpf) {
-        entity.translateX(speed * tpf);
-        entity.translateY(v_speed * tpf);
+        entity.translateX(speed * tpf * dashMultiplier);
+        entity.translateY(v_speed * tpf * dashMultiplier);
 
         if (this.hp <= 0) {
             texture.playAnimationChannel(animDeath);
@@ -148,6 +157,8 @@ public class PlayerAnimationComponent extends Component {
         }
 
         if (canAscend()) ascend();
+
+
 
         if (texture.getAnimationChannel() != animDeath) {
             if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
@@ -207,4 +218,31 @@ public class PlayerAnimationComponent extends Component {
             getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
         }
     }
+
+    private double getCorrectVerticalDashTranslation() {
+        if (v_speed > 0) return DASH_TRANSLATE;
+        else if (v_speed < 0) return -DASH_TRANSLATE;
+        return 0;
+    }
+
+    public void dash() {
+        //zakomentuj ifa by sprawdzić działanie
+        if (mp < 20 || currentLevel < 2) return;
+        this.mp -= 20;
+//        FXGL.animationBuilder()
+//                .setOnFinished(() -> {
+//                    //coś to nie chce działać
+//                })
+//                .interpolator(Interpolators.EXPONENTIAL.EASE_OUT())
+//                .duration(Duration.seconds(1))
+//                .translate(entity)
+//                .from(new Point2D(entity.getX() + (speed == 0 ? 0 : DASH_TRANSLATE * entity.getScaleX()),
+//                        entity.getY() + getCorrectVerticalDashTranslation()))
+//                .build().start();
+        dashMultiplier = 7;
+        getGameTimer().runOnceAfter(() -> {
+            dashMultiplier = 1;
+        }, Duration.seconds(0.25));
+    }
 }
+
