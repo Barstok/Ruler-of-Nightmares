@@ -23,6 +23,8 @@ public class PlayerAnimationComponent extends Component {
 
     private int hp;
 
+    private int xp;
+
     private AnimatedTexture texture;
     private AnimationChannel animIdle, animWalk, animAttack, animAttacked, animDeath;
 
@@ -70,6 +72,7 @@ public class PlayerAnimationComponent extends Component {
         entity.getViewComponent().addChild(texture);
         this.isAttacked = false;
         this.hp = 100;
+        this.xp = 0;
         getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(2));
     }
 
