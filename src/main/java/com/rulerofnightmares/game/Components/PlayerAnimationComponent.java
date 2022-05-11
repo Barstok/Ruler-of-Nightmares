@@ -219,26 +219,10 @@ public class PlayerAnimationComponent extends Component {
         }
     }
 
-    private double getCorrectVerticalDashTranslation() {
-        if (v_speed > 0) return DASH_TRANSLATE;
-        else if (v_speed < 0) return -DASH_TRANSLATE;
-        return 0;
-    }
-
     public void dash() {
         //zakomentuj ifa by sprawdzić działanie
-        // if (mp < 20 || currentLevel < 2) return;
+        if (mp < 20 || currentLevel < 2) return;
         this.mp -= 20;
-//        FXGL.animationBuilder()
-//                .setOnFinished(() -> {
-//                    //coś to nie chce działać
-//                })
-//                .interpolator(Interpolators.EXPONENTIAL.EASE_OUT())
-//                .duration(Duration.seconds(1))
-//                .translate(entity)
-//                .from(new Point2D(entity.getX() + (speed == 0 ? 0 : DASH_TRANSLATE * entity.getScaleX()),
-//                        entity.getY() + getCorrectVerticalDashTranslation()))
-//                .build().start();
         dashMultiplier = 4;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
