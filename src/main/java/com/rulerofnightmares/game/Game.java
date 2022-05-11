@@ -53,20 +53,21 @@ public class Game extends GameApplication {
 
 	@Override
 	protected void initPhysics() {
-		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY_RED_RIDING_HOOD) {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY) {
 			@Override
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
-				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack(50);
+				int dmg = normalAttack.getComponent(DamageDealerComponent.class).dealDmg();
+				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmg(dmg);
 				player.getComponent(PlayerAnimationComponent.class).incrementXp(20);
 			}
 		});
 
-		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.ENEMY_RED_RIDING_HOOD,EntityType.BULLET) {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.ENEMY, EntityType.BULLET) {
 			@Override
 			protected void onCollisionBegin(Entity enemy, Entity bullet){
 				//troche sie syf narobil z "uniwersalnoscia", trzeba bedzie to przepisac sensowniej
 				int dmg = bullet.getComponent(DamageDealerComponent.class).dealDmg();
-				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmgNormalAttack(dmg);
+				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmg(dmg);
 			}
 		});
 	}

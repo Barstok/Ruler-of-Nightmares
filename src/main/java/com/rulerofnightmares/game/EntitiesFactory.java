@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.HitBox;
+import com.rulerofnightmares.game.Components.DamageDealerComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
 import com.rulerofnightmares.game.Components.RedRidingHoodAnimationComponent;
@@ -32,7 +33,7 @@ public class EntitiesFactory implements EntityFactory {
 	@Spawns("RedRidingHood")
 	public Entity newMonster(SpawnData data) {
 		return FXGL.entityBuilder(data)
-				.type(EntityType.ENEMY_RED_RIDING_HOOD)
+				.type(EntityType.ENEMY)
 				//		punkt początkowy względem początku calego wycinka png || kwadrat 16x30 czyli pi razy drzwi rzeczywisty wymiar postaci
 				.bbox(new HitBox(new Point2D(48,64.5),BoundingShape.box(16,30)))
 				.with(new RedRidingHoodAnimationComponent())
@@ -47,6 +48,7 @@ public class EntitiesFactory implements EntityFactory {
 				.type(EntityType.PLAYER_NORMAL_ATTACK)
 				.bbox(new HitBox(new Point2D(-10, -7), BoundingShape.box(25, 17)))
 				.with(new CollidableComponent(true))
+				.with(new DamageDealerComponent(50))
 				.build();
 	}
 }

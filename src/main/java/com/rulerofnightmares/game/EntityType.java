@@ -2,7 +2,7 @@ package com.rulerofnightmares.game;
 
 public enum EntityType {
     PLAYER,
-    ENEMY_RED_RIDING_HOOD,
+    ENEMY,
     PLAYER_NORMAL_ATTACK,
     BULLET
 }
