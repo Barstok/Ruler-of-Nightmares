@@ -4,6 +4,7 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.GameView;
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.rulerofnightmares.game.Components.DamageDealerComponent;
@@ -16,6 +17,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
+
+import java.util.Map;
 
 public class Game extends GameApplication {
 	private Entity player;
@@ -32,6 +35,10 @@ public class Game extends GameApplication {
 	}
 
 	@Override
+	protected void initGameVars(Map<String, Object> vars) {
+	}
+
+	@Override
 	protected void initInput() {
 		onKey(KeyCode.W, () -> player.getComponent(PlayerAnimationComponent.class).moveUp());
 
@@ -40,6 +47,8 @@ public class Game extends GameApplication {
 		onKey(KeyCode.A, () -> player.getComponent(PlayerAnimationComponent.class).moveLeft());
 
 		onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
+
+		onKeyDown(KeyCode.E, () -> player.getComponent(PlayerAnimationComponent.class).shootFireBall());
 
 		onKeyDown(KeyCode.SPACE, () -> {
 			player.getComponent(PlayerAnimationComponent.class).attack();
@@ -83,6 +92,7 @@ public class Game extends GameApplication {
 		getGameScene().addGameView(view);
 
 		player = spawn("Player", 100, 100);
+		FXGL.getWorldProperties().setValue("player", player);
 		monster = spawn("RedRidingHood", 250, 250);
 
 		// przypisanie "kamery" do pozycji gracza

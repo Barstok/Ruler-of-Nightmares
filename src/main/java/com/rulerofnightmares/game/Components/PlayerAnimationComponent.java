@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.*;
 
 import com.almasb.fxgl.time.TimerAction;
+import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
 import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
@@ -21,6 +22,12 @@ public class PlayerAnimationComponent extends Component {
 
     private final static double DASH_TRANSLATE = 150;
 
+    private static final int STATISTICS_INCREMENT = 30;
+
+    private static int maxHP = 100;
+
+    private static int maxMP = 100;
+
     public static final Map<Integer, Integer> LEVELS_EXP_MAP = Map.of(1, 100, 2, 200, 3, 300, 4, 400, 5, 500, 6, 600);
     public static final double ATTACK_ANIMATION_DURATION = 0.5;
     private int speed = 0;
@@ -33,6 +40,8 @@ public class PlayerAnimationComponent extends Component {
 
     private int xp;
 
+    private boolean hellCircleAddLock;
+
     public int getMp() {
         return mp;
     }
@@ -42,14 +51,12 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void regenerateMp() {
-        if (this.mp >= 100) return;
-        if (this.mp + 5 >= 100) this.mp = 100;
+        if (this.mp >= maxMP) return;
+        if (this.mp + 5 >= maxHP) this.mp = 100;
         else this.mp += 5;
     }
 
     private int mp;
-
-    private boolean animationLock;
 
     private int currentLevel;
 
@@ -65,7 +72,7 @@ public class PlayerAnimationComponent extends Component {
         animWalk = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 0, 3);
         animAttack = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(ATTACK_ANIMATION_DURATION),27,35);
         animDeath = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(1),93,97);
-
+        hellCircleAddLock = false;
         texture = new AnimatedTexture(animIdle);
 
         texture.setOnCycleFinished( () ->{
@@ -101,8 +108,16 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void regenerateHP() {
-        if (this.hp < 100) {
+        if (this.hp < maxHP) {
             this.hp++;
+        }
+    }
+
+    private void addHellCircle() {
+        if (hellCircleAddLock) return;
+        if (currentLevel >= 3) {
+            entity.addComponent(new HellCircle());
+            hellCircleAddLock = true;
         }
     }
 
@@ -115,6 +130,9 @@ public class PlayerAnimationComponent extends Component {
         int tempXp = LEVELS_EXP_MAP.get(currentLevel);//xp potrzebne do awansowania
         incrementCurrentLevel();
         setXp(this.xp - tempXp);
+        maxMP += STATISTICS_INCREMENT;
+        maxHP += STATISTICS_INCREMENT;
+        addHellCircle();
     }
 
     public boolean isAttacking() {
@@ -140,7 +158,6 @@ public class PlayerAnimationComponent extends Component {
         this.xp = 0;
         this.mp = 0;
         this.currentLevel = 1;
-        this.animationLock = false;
         this.dashMultiplier = 1;
         getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(2));
         getGameTimer().runAtInterval(this::regenerateMp, Duration.seconds(1));
@@ -157,8 +174,6 @@ public class PlayerAnimationComponent extends Component {
         }
 
         if (canAscend()) ascend();
-
-
 
         if (texture.getAnimationChannel() != animDeath) {
             if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
@@ -201,6 +216,13 @@ public class PlayerAnimationComponent extends Component {
         speed = -150;
 
         getEntity().setScaleX(-1);
+    }
+
+    public void shootFireBall() {
+        //zakomentuj ifa, żeby spojrzeć jak to wygląda
+        if (this.currentLevel < 4) return;
+        spawn("FireBall", entity.getCenter());
+        this.mp -= 50;
     }
     
     public void moveUp() {
