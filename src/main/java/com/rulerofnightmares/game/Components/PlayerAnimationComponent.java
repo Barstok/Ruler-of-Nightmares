@@ -22,6 +22,10 @@ public class PlayerAnimationComponent extends Component {
 
     private final static double DASH_TRANSLATE = 150;
 
+    private static int HP_INCREMENT = 1;
+
+    private static int MP_INCREMENT = 5;
+
     private static final int STATISTICS_INCREMENT = 30;
 
     private static int maxHP = 100;
@@ -52,8 +56,8 @@ public class PlayerAnimationComponent extends Component {
 
     public void regenerateMp() {
         if (this.mp >= maxMP) return;
-        if (this.mp + 5 >= maxHP) this.mp = 100;
-        else this.mp += 5;
+        if (this.mp + MP_INCREMENT >= maxMP) this.mp = maxMP;
+        else this.mp += MP_INCREMENT;
     }
 
     private int mp;
@@ -108,9 +112,9 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void regenerateHP() {
-        if (this.hp < maxHP) {
-            this.hp++;
-        }
+        if (this.hp >= maxHP) return;
+        if (this.hp + HP_INCREMENT >= maxHP) this.hp = maxHP;
+        else this.hp += HP_INCREMENT;
     }
 
     private void addHellCircle() {
@@ -132,6 +136,8 @@ public class PlayerAnimationComponent extends Component {
         setXp(this.xp - tempXp);
         maxMP += STATISTICS_INCREMENT;
         maxHP += STATISTICS_INCREMENT;
+        MP_INCREMENT += 5;
+        HP_INCREMENT++;
         addHellCircle();
     }
 
@@ -159,7 +165,7 @@ public class PlayerAnimationComponent extends Component {
         this.mp = 0;
         this.currentLevel = 1;
         this.dashMultiplier = 1;
-        getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(2));
+        getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(1));
         getGameTimer().runAtInterval(this::regenerateMp, Duration.seconds(1));
     }
 
