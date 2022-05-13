@@ -226,7 +226,7 @@ public class PlayerAnimationComponent extends Component {
 
     public void shootFireBall() {
         //zakomentuj ifa, żeby spojrzeć jak to wygląda
-        if (this.currentLevel < 4) return;
+        if (this.currentLevel < 4 || mp < 50) return;
         spawn("FireBall", entity.getCenter());
         this.mp -= 50;
     }

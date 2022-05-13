@@ -7,6 +7,7 @@ import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.physics.CollisionHandler;
+import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.Components.DamageDealerComponent;
 import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 
@@ -19,10 +20,25 @@ import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 import java.util.Map;
+import java.util.Random;
 
 public class Game extends GameApplication {
 	private Entity player;
+
+	private final static int MAX_WAVES = 7;
+
+	private final static int WAVES_WAIT_FACTOR = 30;
+
+	private final static double RANDOM_BOUNDARY = 777;
+
+	int current_wave;
 	private Entity monster;
+
+	private static final Random randomCoordinates = new Random();
+
+	private static final int ENEMIES_PER_WAVE_FACTOR = 20;
+
+	TimerAction wavesSpawner;
 
 	@Override
 	protected void initSettings(GameSettings settings) {
@@ -83,6 +99,7 @@ public class Game extends GameApplication {
 
 	@Override
 	protected void initGame() {
+		current_wave = 0;
 
 		getGameWorld().addEntityFactory(new EntitiesFactory());
 
@@ -93,14 +110,28 @@ public class Game extends GameApplication {
 
 		player = spawn("Player", 100, 100);
 		FXGL.getWorldProperties().setValue("player", player);
-		monster = spawn("RedRidingHood", 250, 250);
 
 		// przypisanie "kamery" do pozycji gracza
 		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,
 				getSettings().getActualHeight() / 2);
 		// ustawienie granic kamery
 		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
+		wavesSpawner = getGameTimer().runAtInterval(() -> {
+			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
+			for (int i = 0; i < ENEMIES_PER_WAVE_FACTOR * (current_wave + 1); i++) {
+				spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
+			}
+			current_wave++;
+		}, Duration.seconds(WAVES_WAIT_FACTOR * (current_wave + 1)));
 
+	}
+
+	@Override
+	protected void onUpdate(double tpf) {
+		if (current_wave == MAX_WAVES) {
+			wavesSpawner.expire();
+			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
+		}
 	}
 
 	public static void main(String[] args) {
