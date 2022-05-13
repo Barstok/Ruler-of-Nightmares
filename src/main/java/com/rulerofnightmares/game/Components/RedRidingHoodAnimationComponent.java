@@ -18,6 +18,8 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 
 public class RedRidingHoodAnimationComponent extends Component {
 
+    private final int XP_GIVEN = 20;
+
     private final double RED_RIDING_HOOD_ANIMATION_DURATION = 1;
 
     private int speed = 0;
@@ -36,6 +38,8 @@ public class RedRidingHoodAnimationComponent extends Component {
 
     private AnimationChannel animIdle, animWalk, animAttack, animTakeDmg;
 
+    private Entity player;
+
     public RedRidingHoodAnimationComponent() {
         animIdle = new AnimationChannel(FXGL.image("red_riding_hood.png"), 12, 1344 / 12, 1463 / 11,
                 Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 0, 1);
@@ -48,6 +52,7 @@ public class RedRidingHoodAnimationComponent extends Component {
                 Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 120, 126);
 
         texture = new AnimatedTexture(animIdle);
+        player = FXGL.getGameWorld().getProperties().getObject("player");
     }
 
     public int getHp() {
@@ -120,6 +125,7 @@ public class RedRidingHoodAnimationComponent extends Component {
 //                    }
 //                }, Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION));
                 entity.removeFromWorld();
+                player.getComponent(PlayerAnimationComponent.class).incrementXp(XP_GIVEN);
             }
         }
 
