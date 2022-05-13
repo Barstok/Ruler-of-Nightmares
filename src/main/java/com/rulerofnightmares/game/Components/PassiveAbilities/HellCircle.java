@@ -12,6 +12,7 @@ import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.texture.Texture;
+import com.rulerofnightmares.game.Components.PlayerAnimationComponent;
 import com.rulerofnightmares.game.EntityType;
 import com.rulerofnightmares.game.Components.DamageDealerComponent;
 
@@ -20,7 +21,8 @@ import javafx.geometry.Point2D;
 public class HellCircle extends Component {
 
     public static final int RADIUS = 30;
-    public static final int MAX_FLAMES = 6;
+
+    public static int MAX_FLAMES = 6;
     
     private int rotationPoint = 0;
 

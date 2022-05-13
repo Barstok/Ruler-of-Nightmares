@@ -58,7 +58,7 @@ public class RedRidingHoodAnimationComponent extends Component {
         this.hp = hp;
     }
 
-    public void receiveDmgNormalAttack(int dmg) {
+    public void receiveDmg(int dmg) {
         this.hp -= dmg;
         isAttacked = true;
     }
