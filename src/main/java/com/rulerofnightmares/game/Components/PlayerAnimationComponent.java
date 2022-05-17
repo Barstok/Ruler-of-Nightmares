@@ -2,9 +2,12 @@ package com.rulerofnightmares.game.Components;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.physics.CircleShapeData;
+import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.texture.*;
 
 import com.almasb.fxgl.time.TimerAction;
@@ -12,6 +15,9 @@ import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
 import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +27,21 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 public class PlayerAnimationComponent extends Component {
 
     private final static double DASH_TRANSLATE = 150;
+
+    private static final int HELL_CIRCLE_RADIUS = 30;
+
+    private static final int MAX_FLAMES = 6;
+
+    private static int hellCircleRotationPoint = 0;
+
+    //zaleznie od poziomu umiejetnosci
+    private static final int HELL_CIRCLE_ROTATION_VELOCITY = 1;
+    private static final int HELL_CIRCLE_DMG = 5;
+
+    //ehhh
+    private static final double FLAME_CENTER = 12.5;
+
+    private List<Entity> flames = new ArrayList<Entity>();
 
     private static int HP_INCREMENT = 1;
 
@@ -120,9 +141,32 @@ public class PlayerAnimationComponent extends Component {
     private void addHellCircle() {
         if (hellCircleAddLock) return;
         if (currentLevel >= 3) {
-            entity.addComponent(new HellCircle());
+            Entity player = FXGL.getWorldProperties().getObject("player");
+            for(int x=0 ; x < MAX_FLAMES ; x++){
+                flames.add( new EntityBuilder()
+                        .type(EntityType.BULLET)
+                        .view("flame.png")
+                        .at(new Point2D(player.getX()+FXGLMath.cosDeg(360/MAX_FLAMES*x)*HELL_CIRCLE_RADIUS-FLAME_CENTER,
+                                player.getY()+FXGLMath.sinDeg(360/MAX_FLAMES*x)*HELL_CIRCLE_RADIUS-FLAME_CENTER))
+                        //hitbox bedzie do poprawki po zmianie wyglądu
+                        .bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
+                        .collidable()
+                        .with( new DamageDealerComponent(HELL_CIRCLE_DMG))
+                        .buildAndAttach());
+            }
             hellCircleAddLock = true;
         }
+    }
+
+    private void rotateHellCircle() {
+        var position = entity.getCenter();
+
+        for(int x=0 ; x<MAX_FLAMES ; x++){
+            flames.get(x).setPosition(new Point2D(position.getX()+FXGLMath.cosDeg(360/MAX_FLAMES*x+hellCircleRotationPoint)*HELL_CIRCLE_RADIUS-FLAME_CENTER,
+                    position.getY()+FXGLMath.sinDeg(360/MAX_FLAMES*x+hellCircleRotationPoint)*HELL_CIRCLE_RADIUS-FLAME_CENTER));
+        }
+        hellCircleRotationPoint += HELL_CIRCLE_ROTATION_VELOCITY;
+        if(hellCircleRotationPoint >= 360) hellCircleRotationPoint = 0;
     }
 
     public boolean canAscend() {
@@ -177,6 +221,10 @@ public class PlayerAnimationComponent extends Component {
         if (this.hp <= 0) {
             texture.playAnimationChannel(animDeath);
             getGameTimer().runOnceAfter(entity::removeFromWorld, Duration.seconds(1));
+        }
+
+        if (hellCircleAddLock) {
+            rotateHellCircle();
         }
 
         if (canAscend()) ascend();
