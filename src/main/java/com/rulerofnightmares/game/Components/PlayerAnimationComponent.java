@@ -180,7 +180,7 @@ public class PlayerAnimationComponent extends Component {
         FireBallComponent.FIREBALL_SPEED = 7;
         ATTACK_ANIMATION_DURATION = 0.25;
         dashDuration = 0.5;
-        animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/6, 52, Duration.seconds(1), 0, 7);
+        animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/8, 52, Duration.seconds(1), 0, 7);
         animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 52, Duration.seconds(1), 0, 7);
         animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,52,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);
     }
