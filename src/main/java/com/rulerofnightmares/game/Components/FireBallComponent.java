@@ -8,7 +8,7 @@ import javafx.geometry.Point2D;
 
 public class FireBallComponent extends Component {
 
-    private static final int FIREBALL_SPEED = 3;
+    public static int FIREBALL_SPEED = 3;
 
     private Point2D vector;
 

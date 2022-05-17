@@ -28,6 +28,8 @@ public class PlayerAnimationComponent extends Component {
 
     private final static double DASH_TRANSLATE = 150;
 
+    private double dashDuration = 0.25;
+
     private static final int HELL_CIRCLE_RADIUS = 30;
 
     private static final int MAX_FLAMES = 6;
@@ -54,7 +56,7 @@ public class PlayerAnimationComponent extends Component {
     private static int maxMP = 100;
 
     public static final Map<Integer, Integer> LEVELS_EXP_MAP = Map.of(1, 100, 2, 200, 3, 300, 4, 400, 5, 500, 6, 600);
-    public static final double ATTACK_ANIMATION_DURATION = 0.5;
+    public static double ATTACK_ANIMATION_DURATION = 0.5;
     private int speed = 0;
     private int v_speed = 0;
     private int isAttacking = 0;
@@ -65,7 +67,9 @@ public class PlayerAnimationComponent extends Component {
 
     private int xp;
 
-    private boolean hellCircleAddLock;
+    private static boolean hellCircleAddLock;
+
+    private static boolean isTransformed;
 
     public int getMp() {
         return mp;
@@ -86,17 +90,15 @@ public class PlayerAnimationComponent extends Component {
     private int currentLevel;
 
     private AnimatedTexture texture;
-    private AnimationChannel animIdle, animWalk, animAttack, animAttacked, animDeath;
+    private AnimationChannel animIdle, animWalk, animAttack;
 
     private int dashMultiplier;
 
     public PlayerAnimationComponent() {
         //animAttacked nie działa, nie wiem czemu
-        animAttacked = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(1),78,81);
         animIdle = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 1, 1);
         animWalk = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 0, 3);
         animAttack = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(ATTACK_ANIMATION_DURATION),27,35);
-        animDeath = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(1),93,97);
         hellCircleAddLock = false;
         texture = new AnimatedTexture(animIdle);
 
@@ -174,6 +176,15 @@ public class PlayerAnimationComponent extends Component {
         return this.xp >= LEVELS_EXP_MAP.get(currentLevel);
     }
 
+    public void transformation() {
+        FireBallComponent.FIREBALL_SPEED = 7;
+        ATTACK_ANIMATION_DURATION = 0.25;
+        dashDuration = 0.5;
+        animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/6, 52, Duration.seconds(1), 0, 7);
+        animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 52, Duration.seconds(1), 0, 7);
+        animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,52,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);
+    }
+
     public void ascend() {
         int tempXp = LEVELS_EXP_MAP.get(currentLevel);//xp potrzebne do awansowania
         incrementCurrentLevel();
@@ -183,6 +194,10 @@ public class PlayerAnimationComponent extends Component {
         MP_INCREMENT += 5;
         HP_INCREMENT++;
         addHellCircle();
+        if (this.currentLevel >= 5 && !isTransformed) {
+            transformation();
+            isTransformed = true;
+        }
     }
 
     public boolean isAttacking() {
@@ -204,6 +219,7 @@ public class PlayerAnimationComponent extends Component {
         entity.getTransformComponent().setScaleOrigin(new Point2D(16, 16));
         entity.getViewComponent().addChild(texture);
         this.isAttacked = false;
+        isTransformed = false;
         this.hp = 100;
         this.xp = 0;
         this.mp = 0;
@@ -219,7 +235,6 @@ public class PlayerAnimationComponent extends Component {
         entity.translateY(v_speed * tpf * dashMultiplier);
 
         if (this.hp <= 0) {
-            texture.playAnimationChannel(animDeath);
             getGameTimer().runOnceAfter(entity::removeFromWorld, Duration.seconds(1));
         }
 
@@ -229,7 +244,6 @@ public class PlayerAnimationComponent extends Component {
 
         if (canAscend()) ascend();
 
-        if (texture.getAnimationChannel() != animDeath) {
             if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
                 texture.playAnimationChannel(animAttack);
             }
@@ -256,7 +270,6 @@ public class PlayerAnimationComponent extends Component {
                 }
             }
             else if(isAttacking == 0 ) texture.loopAnimationChannel(animIdle);
-        }
 
     }
 
@@ -302,7 +315,7 @@ public class PlayerAnimationComponent extends Component {
         dashMultiplier = 4;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
-        }, Duration.seconds(0.25));
+        }, Duration.seconds(dashDuration));
     }
 }
 
