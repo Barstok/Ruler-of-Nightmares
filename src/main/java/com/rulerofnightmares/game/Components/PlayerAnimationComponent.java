@@ -6,6 +6,8 @@ import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.texture.*;
@@ -177,9 +179,13 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void transformation() {
+        var position = entity.getCenter();
         FireBallComponent.FIREBALL_SPEED = 7;
         ATTACK_ANIMATION_DURATION = 0.25;
         dashDuration = 0.5;
+        entity.getBoundingBoxComponent().clearHitBoxes();
+        entity.getBoundingBoxComponent().addHitBox(new HitBox(new Point2D(83, 69), BoundingShape.box(26, 54)));
+        entity.getTransformComponent().setScaleOrigin(new Point2D(96, 69));
         animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,200,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);

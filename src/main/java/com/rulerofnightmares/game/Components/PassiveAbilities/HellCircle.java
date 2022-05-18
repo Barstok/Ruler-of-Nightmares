@@ -29,7 +29,7 @@ public class HellCircle extends Component {
     //zaleznie od poziomu umiejetnosci
     private byte rotationVelocity = 1;
     private int flamesCount = MAX_FLAMES;
-    private int dmg = 5;
+    private static int dmg = 5;
 
     //ehhh
     private static final double FLAME_CENTER = 12.5;
@@ -51,6 +51,14 @@ public class HellCircle extends Component {
                 .with( new DamageDealerComponent(dmg))
                 .buildAndAttach());
         }
+    }
+
+    public void setDMG(int dmg) {
+        HellCircle.dmg = dmg;
+    }
+
+    public int getDMG(){
+        return HellCircle.dmg;
     }
 
     @Override
