@@ -122,7 +122,7 @@ public class Game extends GameApplication {
 				spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
 			}
 			current_wave++;
-		}, Duration.seconds(WAVES_WAIT_FACTOR * (current_wave + 1)));
+		}, Duration.seconds(WAVES_WAIT_FACTOR));
 
 	}
 

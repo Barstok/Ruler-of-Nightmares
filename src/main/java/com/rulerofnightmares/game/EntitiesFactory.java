@@ -1,5 +1,7 @@
 package com.rulerofnightmares.game;
 
+import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
@@ -25,6 +27,8 @@ import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntitiesFactory implements EntityFactory {
     
@@ -72,5 +76,26 @@ public class EntitiesFactory implements EntityFactory {
 				.collidable()
 				.with(new ExpireCleanComponent(Duration.seconds(4)))
 				.build();
+	}
+
+	@Spawns("HellCircle")
+	public List<Entity> newHellCircle(SpawnData data) {
+		double flameCenter = 12.5;
+		int maxFlames = 6, radius = 30, dmg = 5;
+		Entity player = FXGL.getWorldProperties().getObject("player");
+		List<Entity> flames = new ArrayList<Entity>();
+		for(int x=0 ; x < maxFlames ; x++){
+			flames.add( new EntityBuilder()
+					.type(EntityType.BULLET)
+					.view("flame.png")
+					.at(new Point2D(player.getX()+FXGLMath.cosDeg(360/maxFlames*x)*radius-flameCenter,
+							player.getY()+FXGLMath.sinDeg(360/maxFlames*x)*radius-flameCenter))
+					//hitbox bedzie do poprawki po zmianie wyglądu
+					.bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
+					.collidable()
+					.with( new DamageDealerComponent(dmg))
+					.buildAndAttach());
+		}
+		return flames;
 	}
 }

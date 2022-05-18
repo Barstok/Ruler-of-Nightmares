@@ -2,9 +2,12 @@ package com.rulerofnightmares.game.Components;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.physics.CircleShapeData;
+import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.texture.*;
 
 import com.almasb.fxgl.time.TimerAction;
@@ -12,6 +15,9 @@ import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
 import com.rulerofnightmares.game.EntityType;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +27,23 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 public class PlayerAnimationComponent extends Component {
 
     private final static double DASH_TRANSLATE = 150;
+
+    private double dashDuration = 0.25;
+
+    private static final int HELL_CIRCLE_RADIUS = 30;
+
+    private static final int MAX_FLAMES = 6;
+
+    private static int hellCircleRotationPoint = 0;
+
+    //zaleznie od poziomu umiejetnosci
+    private static final int HELL_CIRCLE_ROTATION_VELOCITY = 1;
+    private static final int HELL_CIRCLE_DMG = 5;
+
+    //ehhh
+    private static final double FLAME_CENTER = 12.5;
+
+    private List<Entity> flames = new ArrayList<Entity>();
 
     private static int HP_INCREMENT = 1;
 
@@ -33,7 +56,7 @@ public class PlayerAnimationComponent extends Component {
     private static int maxMP = 100;
 
     public static final Map<Integer, Integer> LEVELS_EXP_MAP = Map.of(1, 100, 2, 200, 3, 300, 4, 400, 5, 500, 6, 600);
-    public static final double ATTACK_ANIMATION_DURATION = 0.5;
+    public static double ATTACK_ANIMATION_DURATION = 0.5;
     private int speed = 0;
     private int v_speed = 0;
     private int isAttacking = 0;
@@ -44,7 +67,9 @@ public class PlayerAnimationComponent extends Component {
 
     private int xp;
 
-    private boolean hellCircleAddLock;
+    private static boolean hellCircleAddLock;
+
+    private static boolean isTransformed;
 
     public int getMp() {
         return mp;
@@ -65,17 +90,15 @@ public class PlayerAnimationComponent extends Component {
     private int currentLevel;
 
     private AnimatedTexture texture;
-    private AnimationChannel animIdle, animWalk, animAttack, animAttacked, animDeath;
+    private AnimationChannel animIdle, animWalk, animAttack;
 
     private int dashMultiplier;
 
     public PlayerAnimationComponent() {
         //animAttacked nie działa, nie wiem czemu
-        animAttacked = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(1),78,81);
         animIdle = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 1, 1);
         animWalk = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 0, 3);
         animAttack = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(ATTACK_ANIMATION_DURATION),27,35);
-        animDeath = new AnimationChannel(FXGL.image("player_sprite.png"),13,32,32,Duration.seconds(1),93,97);
         hellCircleAddLock = false;
         texture = new AnimatedTexture(animIdle);
 
@@ -120,14 +143,46 @@ public class PlayerAnimationComponent extends Component {
     private void addHellCircle() {
         if (hellCircleAddLock) return;
         if (currentLevel >= 3) {
-            entity.addComponent(new HellCircle());
+            Entity player = FXGL.getWorldProperties().getObject("player");
+            for(int x=0 ; x < MAX_FLAMES ; x++){
+                flames.add( new EntityBuilder()
+                        .type(EntityType.BULLET)
+                        .view("flame.png")
+                        .at(new Point2D(player.getX()+FXGLMath.cosDeg(360/MAX_FLAMES*x)*HELL_CIRCLE_RADIUS-FLAME_CENTER,
+                                player.getY()+FXGLMath.sinDeg(360/MAX_FLAMES*x)*HELL_CIRCLE_RADIUS-FLAME_CENTER))
+                        //hitbox bedzie do poprawki po zmianie wyglądu
+                        .bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
+                        .collidable()
+                        .with( new DamageDealerComponent(HELL_CIRCLE_DMG))
+                        .buildAndAttach());
+            }
             hellCircleAddLock = true;
         }
+    }
+
+    private void rotateHellCircle() {
+        var position = entity.getCenter();
+
+        for(int x=0 ; x<MAX_FLAMES ; x++){
+            flames.get(x).setPosition(new Point2D(position.getX()+FXGLMath.cosDeg(360/MAX_FLAMES*x+hellCircleRotationPoint)*HELL_CIRCLE_RADIUS-FLAME_CENTER,
+                    position.getY()+FXGLMath.sinDeg(360/MAX_FLAMES*x+hellCircleRotationPoint)*HELL_CIRCLE_RADIUS-FLAME_CENTER));
+        }
+        hellCircleRotationPoint += HELL_CIRCLE_ROTATION_VELOCITY;
+        if(hellCircleRotationPoint >= 360) hellCircleRotationPoint = 0;
     }
 
     public boolean canAscend() {
         if (currentLevel == 7) return false;
         return this.xp >= LEVELS_EXP_MAP.get(currentLevel);
+    }
+
+    public void transformation() {
+        FireBallComponent.FIREBALL_SPEED = 7;
+        ATTACK_ANIMATION_DURATION = 0.25;
+        dashDuration = 0.5;
+        animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
+        animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
+        animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,200,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);
     }
 
     public void ascend() {
@@ -139,6 +194,10 @@ public class PlayerAnimationComponent extends Component {
         MP_INCREMENT += 5;
         HP_INCREMENT++;
         addHellCircle();
+        if (this.currentLevel >= 5 && !isTransformed) {
+            transformation();
+            isTransformed = true;
+        }
     }
 
     public boolean isAttacking() {
@@ -160,6 +219,7 @@ public class PlayerAnimationComponent extends Component {
         entity.getTransformComponent().setScaleOrigin(new Point2D(16, 16));
         entity.getViewComponent().addChild(texture);
         this.isAttacked = false;
+        isTransformed = false;
         this.hp = 100;
         this.xp = 0;
         this.mp = 0;
@@ -175,13 +235,15 @@ public class PlayerAnimationComponent extends Component {
         entity.translateY(v_speed * tpf * dashMultiplier);
 
         if (this.hp <= 0) {
-            texture.playAnimationChannel(animDeath);
             getGameTimer().runOnceAfter(entity::removeFromWorld, Duration.seconds(1));
+        }
+
+        if (hellCircleAddLock) {
+            rotateHellCircle();
         }
 
         if (canAscend()) ascend();
 
-        if (texture.getAnimationChannel() != animDeath) {
             if(isAttacking == 1 && texture.getAnimationChannel() != animAttack) {
                 texture.playAnimationChannel(animAttack);
             }
@@ -208,7 +270,6 @@ public class PlayerAnimationComponent extends Component {
                 }
             }
             else if(isAttacking == 0 ) texture.loopAnimationChannel(animIdle);
-        }
 
     }
 
@@ -254,7 +315,7 @@ public class PlayerAnimationComponent extends Component {
         dashMultiplier = 4;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
-        }, Duration.seconds(0.25));
+        }, Duration.seconds(dashDuration));
     }
 }
 
