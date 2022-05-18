@@ -32,6 +32,8 @@ public class PlayerAnimationComponent extends Component {
 
     private double dashDuration = 0.25;
 
+    private static int dashMultiplierCeiling = 4;
+
     private static int HELL_CIRCLE_RADIUS = 30;
 
     private static final int MAX_FLAMES = 6;
@@ -192,6 +194,7 @@ public class PlayerAnimationComponent extends Component {
         HELL_CIRCLE_RADIUS = 77;
         HELL_CIRCLE_ROTATION_VELOCITY = 3;
         HELL_CIRCLE_DMG = 20;
+        dashMultiplierCeiling = 7;
     }
 
     public void ascend() {
@@ -327,7 +330,7 @@ public class PlayerAnimationComponent extends Component {
         //zakomentuj ifa by sprawdzić działanie
         if (mp < 20 || currentLevel < 2) return;
         this.mp -= 20;
-        dashMultiplier = 4;
+        dashMultiplier = dashMultiplierCeiling;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
         }, Duration.seconds(dashDuration));
