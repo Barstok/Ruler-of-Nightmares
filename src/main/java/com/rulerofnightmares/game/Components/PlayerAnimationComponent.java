@@ -32,15 +32,15 @@ public class PlayerAnimationComponent extends Component {
 
     private double dashDuration = 0.25;
 
-    private static final int HELL_CIRCLE_RADIUS = 30;
+    private static int HELL_CIRCLE_RADIUS = 30;
 
     private static final int MAX_FLAMES = 6;
 
     private static int hellCircleRotationPoint = 0;
 
     //zaleznie od poziomu umiejetnosci
-    private static final int HELL_CIRCLE_ROTATION_VELOCITY = 1;
-    private static final int HELL_CIRCLE_DMG = 5;
+    private static int HELL_CIRCLE_ROTATION_VELOCITY = 1;
+    private static int HELL_CIRCLE_DMG = 5;
 
     //ehhh
     private static final double FLAME_CENTER = 12.5;
@@ -189,6 +189,9 @@ public class PlayerAnimationComponent extends Component {
         animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,200,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);
+        HELL_CIRCLE_RADIUS = 77;
+        HELL_CIRCLE_ROTATION_VELOCITY = 3;
+        HELL_CIRCLE_DMG = 20;
     }
 
     public void ascend() {
@@ -307,11 +310,17 @@ public class PlayerAnimationComponent extends Component {
     }
     
     public void attack() {
-        if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
+        //if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
             isAttacking = 1;
-            Entity normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
-            getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
-        }
+            Entity normalAttack;
+            if (isTransformed) {
+                normalAttack = spawn("TransformedPlayerNormalAttack", entity.getCenter().getX() + 50 * entity.getScaleX(), entity.getCenter().getY());
+            }
+            else {
+                normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
+            }
+            //getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
+        //}
     }
 
     public void dash() {
