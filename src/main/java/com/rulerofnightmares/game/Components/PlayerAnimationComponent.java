@@ -313,7 +313,7 @@ public class PlayerAnimationComponent extends Component {
     }
     
     public void attack() {
-        //if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
+        if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
             isAttacking = 1;
             Entity normalAttack;
             if (isTransformed) {
@@ -322,8 +322,8 @@ public class PlayerAnimationComponent extends Component {
             else {
                 normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
             }
-            //getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
-        //}
+            getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
+        }
     }
 
     public void dash() {
