@@ -6,6 +6,8 @@ import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.texture.*;
@@ -30,15 +32,17 @@ public class PlayerAnimationComponent extends Component {
 
     private double dashDuration = 0.25;
 
-    private static final int HELL_CIRCLE_RADIUS = 30;
+    private static int dashMultiplierCeiling = 4;
+
+    private static int HELL_CIRCLE_RADIUS = 30;
 
     private static final int MAX_FLAMES = 6;
 
     private static int hellCircleRotationPoint = 0;
 
     //zaleznie od poziomu umiejetnosci
-    private static final int HELL_CIRCLE_ROTATION_VELOCITY = 1;
-    private static final int HELL_CIRCLE_DMG = 5;
+    private static int HELL_CIRCLE_ROTATION_VELOCITY = 1;
+    private static int HELL_CIRCLE_DMG = 5;
 
     //ehhh
     private static final double FLAME_CENTER = 12.5;
@@ -63,7 +67,7 @@ public class PlayerAnimationComponent extends Component {
 
     private boolean isAttacked;
 
-    private int hp;
+    private Integer hp;
 
     private int xp;
 
@@ -71,7 +75,16 @@ public class PlayerAnimationComponent extends Component {
 
     private static boolean isTransformed;
 
-    public int getMp() {
+    private Integer mp;
+
+    private Integer currentLevel;
+
+    private AnimatedTexture texture;
+    private AnimationChannel animIdle, animWalk, animAttack;
+
+    private int dashMultiplier;
+
+    public Integer getMp() {
         return mp;
     }
 
@@ -85,15 +98,6 @@ public class PlayerAnimationComponent extends Component {
         else this.mp += MP_INCREMENT;
     }
 
-    private int mp;
-
-    private int currentLevel;
-
-    private AnimatedTexture texture;
-    private AnimationChannel animIdle, animWalk, animAttack;
-
-    private int dashMultiplier;
-
     public PlayerAnimationComponent() {
         //animAttacked nie działa, nie wiem czemu
         animIdle = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 1, 1);
@@ -106,11 +110,11 @@ public class PlayerAnimationComponent extends Component {
             isAttacking = 0;
         } );
     }
-    public int getHp() {
+    public Integer getHp() {
         return this.hp;
     }
 
-    public int getCurrentLevel() {
+    public Integer getCurrentLevel() {
         return this.currentLevel;
     }
 
@@ -177,12 +181,20 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void transformation() {
+        var position = entity.getCenter();
         FireBallComponent.FIREBALL_SPEED = 7;
         ATTACK_ANIMATION_DURATION = 0.25;
         dashDuration = 0.5;
+        entity.getBoundingBoxComponent().clearHitBoxes();
+        entity.getBoundingBoxComponent().addHitBox(new HitBox(new Point2D(83, 69), BoundingShape.box(26, 54)));
+        entity.getTransformComponent().setScaleOrigin(new Point2D(96, 69));
         animIdle = new AnimationChannel(FXGL.image("Idle.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animWalk = new AnimationChannel(FXGL.image("Run.png"), 8, 1600/8, 200, Duration.seconds(1), 0, 7);
         animAttack = new AnimationChannel(FXGL.image("Attack1.png"),6,1200/6,200,Duration.seconds(ATTACK_ANIMATION_DURATION),0,5);
+        HELL_CIRCLE_RADIUS = 77;
+        HELL_CIRCLE_ROTATION_VELOCITY = 3;
+        HELL_CIRCLE_DMG = 20;
+        dashMultiplierCeiling = 7;
     }
 
     public void ascend() {
@@ -303,7 +315,13 @@ public class PlayerAnimationComponent extends Component {
     public void attack() {
         if (FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER_NORMAL_ATTACK).isEmpty()) {
             isAttacking = 1;
-            Entity normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
+            Entity normalAttack;
+            if (isTransformed) {
+                normalAttack = spawn("TransformedPlayerNormalAttack", entity.getCenter().getX() + 50 * entity.getScaleX(), entity.getCenter().getY());
+            }
+            else {
+                normalAttack = spawn("PlayerNormalAttack", entity.getCenter().getX() + 10 * entity.getScaleX(), entity.getCenter().getY());
+            }
             getGameTimer().runOnceAfter(normalAttack::removeFromWorld, Duration.seconds(ATTACK_ANIMATION_DURATION));
         }
     }
@@ -312,7 +330,7 @@ public class PlayerAnimationComponent extends Component {
         //zakomentuj ifa by sprawdzić działanie
         if (mp < 20 || currentLevel < 2) return;
         this.mp -= 20;
-        dashMultiplier = 4;
+        dashMultiplier = dashMultiplierCeiling;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;
         }, Duration.seconds(dashDuration));
