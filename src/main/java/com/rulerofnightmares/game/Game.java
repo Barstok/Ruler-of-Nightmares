@@ -51,6 +51,7 @@ public class Game extends GameApplication {
 
 		// pod klawiszem "1" menu, w którym można zaznaczać hitboxy itp.
 		settings.setDeveloperMenuEnabled(true);
+		settings.setMainMenuEnabled(true);
 		settings.setTitle("Ruler of Nightmares");
 		settings.setWidth(1280);
 		settings.setHeight(720);
@@ -140,12 +141,6 @@ public class Game extends GameApplication {
 		Text hpText = new Text("hp: " + player.getComponent(PlayerAnimationComponent.class).getHp().toString());
 		Text mpText = new Text("mp: " + player.getComponent(PlayerAnimationComponent.class).getMp().toString());
 		Text lvlText = new Text("level: " + player.getComponent(PlayerAnimationComponent.class).getCurrentLevel().toString());
-//		hpText.setTranslateX(30);
-//		hpText.setTranslateY(700);
-//		mpText.setTranslateX(30);
-//		mpText.setTranslateY(730);
-//		lvlText.setTranslateX(30);
-//		lvlText.setTranslateY(760);
 		hpText.setFont(Font.font(13));
 		mpText.setFont(Font.font(13));
 		lvlText.setFont(Font.font(13));
@@ -169,6 +164,11 @@ public class Game extends GameApplication {
 		FXGL.getWorldProperties().setValue("hp", player.getComponent(PlayerAnimationComponent.class).getHp());
 		FXGL.getWorldProperties().setValue("mp", player.getComponent(PlayerAnimationComponent.class).getMp());
 		FXGL.getWorldProperties().setValue("level", player.getComponent(PlayerAnimationComponent.class).getCurrentLevel());
+		if (getip("hp").getValue() <= 0) {
+			showMessage("You died!", () -> {
+				getGameController().gotoMainMenu();
+			});
+		}
 	}
 
 	public static void main(String[] args) {
