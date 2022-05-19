@@ -67,7 +67,7 @@ public class PlayerAnimationComponent extends Component {
 
     private boolean isAttacked;
 
-    private int hp;
+    private Integer hp;
 
     private int xp;
 
@@ -75,7 +75,16 @@ public class PlayerAnimationComponent extends Component {
 
     private static boolean isTransformed;
 
-    public int getMp() {
+    private Integer mp;
+
+    private Integer currentLevel;
+
+    private AnimatedTexture texture;
+    private AnimationChannel animIdle, animWalk, animAttack;
+
+    private int dashMultiplier;
+
+    public Integer getMp() {
         return mp;
     }
 
@@ -89,15 +98,6 @@ public class PlayerAnimationComponent extends Component {
         else this.mp += MP_INCREMENT;
     }
 
-    private int mp;
-
-    private int currentLevel;
-
-    private AnimatedTexture texture;
-    private AnimationChannel animIdle, animWalk, animAttack;
-
-    private int dashMultiplier;
-
     public PlayerAnimationComponent() {
         //animAttacked nie działa, nie wiem czemu
         animIdle = new AnimationChannel(FXGL.image("player_sprite.png"), 13, 32, 32, Duration.seconds(1), 1, 1);
@@ -110,11 +110,11 @@ public class PlayerAnimationComponent extends Component {
             isAttacking = 0;
         } );
     }
-    public int getHp() {
+    public Integer getHp() {
         return this.hp;
     }
 
-    public int getCurrentLevel() {
+    public Integer getCurrentLevel() {
         return this.currentLevel;
     }
 
