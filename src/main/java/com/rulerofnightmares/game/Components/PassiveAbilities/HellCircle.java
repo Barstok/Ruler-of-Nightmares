@@ -8,6 +8,7 @@ import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.multiplayer.NetworkComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
@@ -49,6 +50,7 @@ public class HellCircle extends Component {
                 .bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
                 .collidable()
                 .with( new DamageDealerComponent(dmg))
+                .with(new NetworkComponent())
                 .buildAndAttach());
         }
     }

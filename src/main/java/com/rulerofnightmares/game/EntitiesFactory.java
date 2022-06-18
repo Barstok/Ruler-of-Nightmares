@@ -9,6 +9,7 @@ import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.multiplayer.NetworkComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
@@ -40,6 +41,7 @@ public class EntitiesFactory implements EntityFactory {
 				.bbox(new HitBox(new Point2D(6,8),BoundingShape.box(16,24)))
 				.with(new PlayerAnimationComponent())
 				.with(new CollidableComponent(true))
+				.with(new NetworkComponent())
 				.build();
 	}
 
@@ -51,6 +53,7 @@ public class EntitiesFactory implements EntityFactory {
 				.bbox(new HitBox(new Point2D(48,64.5),BoundingShape.box(16,30)))
 				.with(new RedRidingHoodAnimationComponent())
 				.with(new CollidableComponent(true))
+				.with(new NetworkComponent())
 				.build();
 
 	}
@@ -62,6 +65,7 @@ public class EntitiesFactory implements EntityFactory {
 				.bbox(new HitBox(new Point2D(-10, -7), BoundingShape.box(25, 17)))
 				.with(new CollidableComponent(true))
 				.with(new DamageDealerComponent(50))
+				.with(new NetworkComponent())
 				.build();
 	}
 
@@ -72,6 +76,7 @@ public class EntitiesFactory implements EntityFactory {
 				.bbox(new HitBox(new Point2D(-30, -27), BoundingShape.box(60, 70)))
 				.with(new CollidableComponent(true))
 				.with(new DamageDealerComponent(100))
+				.with(new NetworkComponent())
 				.build();
 	}
 
@@ -85,6 +90,7 @@ public class EntitiesFactory implements EntityFactory {
 				.with(new DamageDealerComponent(70))
 				.collidable()
 				.with(new ExpireCleanComponent(Duration.seconds(4)))
+				.with(new NetworkComponent())
 				.build();
 	}
 
@@ -104,6 +110,7 @@ public class EntitiesFactory implements EntityFactory {
 					.bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
 					.collidable()
 					.with( new DamageDealerComponent(dmg))
+					.with(new NetworkComponent())
 					.buildAndAttach());
 		}
 		return flames;

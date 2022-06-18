@@ -7,6 +7,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.multiplayer.NetworkComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
@@ -158,6 +159,7 @@ public class PlayerAnimationComponent extends Component {
                         .bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
                         .collidable()
                         .with( new DamageDealerComponent(HELL_CIRCLE_DMG))
+                        .with(new NetworkComponent())
                         .buildAndAttach());
             }
             hellCircleAddLock = true;
