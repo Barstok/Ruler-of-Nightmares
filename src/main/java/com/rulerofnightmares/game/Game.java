@@ -33,14 +33,13 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 public class Game extends GameApplication {
-	private Entity player;
-	
-	private Entity player2;
-	
+
 	private final static int MAX_WAVES = 7;
 
 	private final static int WAVES_WAIT_FACTOR = 5;
@@ -56,12 +55,17 @@ public class Game extends GameApplication {
 
 	private static final int ENEMIES_PER_WAVE_FACTOR = 20;
 	
-	private int playersConnected = 1;
+	private int playersConnected = 0;
 	
 	private boolean isServer;
 	
-	private Connection<Bundle> connection;
-
+	private List<Entity> players = new ArrayList<Entity>();
+	
+	private List<Input> clientInputs = new ArrayList<Input>();
+	
+	private Connection<Bundle> clientConn;
+	private List<Connection<Bundle>> connections = new ArrayList<Connection<Bundle>>();
+	
 	TimerAction wavesSpawner;
 
 	@Override
@@ -85,36 +89,41 @@ public class Game extends GameApplication {
 
 	protected void initInput() {
 		if(isServer) {
-			onKey(KeyCode.W, () -> player.getComponent(PlayerAnimationComponent.class).moveUp());
+			onKey(KeyCode.W, () -> players.get(0).getComponent(PlayerAnimationComponent.class).moveUp());
 
-			onKey(KeyCode.S, () -> player.getComponent(PlayerAnimationComponent.class).moveDown());
+			onKey(KeyCode.S, () -> players.get(0).getComponent(PlayerAnimationComponent.class).moveDown());
 
-			onKey(KeyCode.A, () -> player.getComponent(PlayerAnimationComponent.class).moveLeft());
+			onKey(KeyCode.A, () -> players.get(0).getComponent(PlayerAnimationComponent.class).moveLeft());
 
-			onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
+			onKey(KeyCode.D, () -> players.get(0).getComponent(PlayerAnimationComponent.class).moveRight());
 
-			onKeyDown(KeyCode.E, () -> player.getComponent(PlayerAnimationComponent.class).shootFireBall());
+			onKeyDown(KeyCode.E, () -> players.get(0).getComponent(PlayerAnimationComponent.class).shootFireBall());
 
 			onKeyDown(KeyCode.SPACE, () -> {
-				player.getComponent(PlayerAnimationComponent.class).attack();
+				players.get(0).getComponent(PlayerAnimationComponent.class).attack();
 			});
 
 			onKeyDown(KeyCode.Q, () -> {
-				player.getComponent(PlayerAnimationComponent.class).dash();
+				players.get(0).getComponent(PlayerAnimationComponent.class).dash();
 			});
 		}
+	}
+	
+	void initClientInput() {
+		clientInputs.add( new Input());
 		
-		clientInput = new Input();
-		
-		onKeyBuilder(clientInput,KeyCode.W)
-				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveUp());
-		onKeyBuilder(clientInput,KeyCode.S)
-				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveDown());
-		onKeyBuilder(clientInput,KeyCode.A)
-				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveLeft());
-		onKeyBuilder(clientInput,KeyCode.D)
-				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveRight());
-		
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.W)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveUp());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.S)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveDown());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.A)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveLeft());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.D)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveRight());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.SPACE)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).attack());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.Q)
+				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).dash());
 	}
 
 
@@ -125,7 +134,7 @@ public class Game extends GameApplication {
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
 				int dmg = normalAttack.getComponent(DamageDealerComponent.class).dealDmg();
 				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmg(dmg);
-				player.getComponent(PlayerAnimationComponent.class).incrementXp(20);
+				//players.getComponent(PlayerAnimationComponent.class).incrementXp(20);
 			}
 		});
 
@@ -138,7 +147,7 @@ public class Game extends GameApplication {
 			}
 		});
 	}
-
+	
 	@Override
 	protected void initGame() {
 		
@@ -150,10 +159,14 @@ public class Game extends GameApplication {
                 if (yes) {
                     var server = getNetService().newTCPServer(55555);
                     server.setOnConnected(conn -> {
-                        connection = conn;
+                        connections.add(conn);
+
                         playersConnected++;
                                                           
-                        getExecutor().startAsyncFX(() -> ServerSide());
+                        if(playersConnected == 1) {
+                        	getExecutor().startAsyncFX(() -> ServerSide());
+                        }
+                        getExecutor().startAsyncFX(() -> playerJoined());
                     });
                     
                     server.startAsync();
@@ -161,7 +174,7 @@ public class Game extends GameApplication {
                 } else {
                     var client = getNetService().newTCPClient("localhost", 55555);
                     client.setOnConnected(conn -> {
-                        connection = conn;
+                        clientConn = conn;
 
                         getExecutor().startAsyncFX(() -> ClientSide());
                         
@@ -201,13 +214,13 @@ public class Game extends GameApplication {
    		GameView view = new GameView(node, 0);
    		getGameScene().addGameView(view);
 		
-   		getService(MultiplayerService.class).addEntityReplicationReceiver(connection, getGameWorld());
+   		getService(MultiplayerService.class).addEntityReplicationReceiver(clientConn, getGameWorld());
    		
    		runOnce(() ->{
    			ClientBindViewport();
-   		},Duration.seconds(1));
+   		},Duration.seconds(2));
    		
-   		getService(MultiplayerService.class).addInputReplicationSender(connection, getInput());
+   		getService(MultiplayerService.class).addInputReplicationSender(clientConn, getInput());
 		System.out.println(getGameWorld().getEntitiesByType(EntityType.PLAYER).isEmpty());
 		
 	}
@@ -215,10 +228,24 @@ public class Game extends GameApplication {
 	void ClientBindViewport() {
 		var playerToFollow = getGameWorld().getEntitiesByType(EntityType.PLAYER);
 		
-		getGameScene().getViewport().bindToEntity(playerToFollow.get(1), getSettings().getActualWidth() / 2,
+		getGameScene().getViewport().bindToEntity(playerToFollow.get(playerToFollow.size()-1), getSettings().getActualWidth() / 2,
    				getSettings().getActualHeight() / 2);
 
    		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
+	}
+	
+	void playerJoined(){
+		var conn = connections.get(connections.size()-1);
+		for(var entity: getGameWorld().getEntitiesByType(EntityType.PLAYER)) {
+			getService(MultiplayerService.class).spawn(conn, entity, "Player");
+		}
+		var temp = spawn("Player",100+100*playersConnected,100+100*playersConnected);
+		players.add(temp);
+		for(var conns : connections) {
+			getService(MultiplayerService.class).spawn(conns, temp, "Player");
+		}
+		initClientInput();
+		getService(MultiplayerService.class).addInputReplicationReceiver(conn, clientInputs.get(playersConnected-1));
 	}
 	
 	void ServerSide() {
@@ -230,23 +257,21 @@ public class Game extends GameApplication {
    		getGameScene().addGameView(view);
    		
    		initPhysics();
-   		
-		player = spawn("Player", 100, 100);
-		FXGL.getWorldProperties().setValue("player", player);
-		player2 = spawn("Player", 200, 200);
-		getService(MultiplayerService.class).spawn(connection, player, "Player");
-		getService(MultiplayerService.class).spawn(connection, player2, "Player");
-		
-		getService(MultiplayerService.class).addInputReplicationReceiver(connection, clientInput);
-           
+
+   		var temp = spawn("Player",100,100);
+   		players.add(temp);
+   		getService(MultiplayerService.class).spawn(connections.get(0), temp, "Player");
+		        
         // przypisanie "kamery" do pozycji gracza
-   		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,
+   		getGameScene().getViewport().bindToEntity(players.get(0), getSettings().getActualWidth() / 2,
    				getSettings().getActualHeight() / 2);
    		// ustawienie granic kamery
    		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
    		
-   		var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
-		getService(MultiplayerService.class).spawn(connection, nmy, "RedRidingHood");
+   		var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);	
+		for(var conn: connections) {
+			getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
+		}
    		
 		
 //		wavesSpawner = getGameTimer().runAtInterval(() -> {
@@ -261,7 +286,9 @@ public class Game extends GameApplication {
 
 	@Override
 	protected void onUpdate(double tpf) {
-		clientInput.update(tpf);
+		for(var input : clientInputs) {
+			input.update(tpf);
+		}
 	}
 	
 //	@Override

@@ -109,6 +109,10 @@ public class RedRidingHoodAnimationComponent extends Component {
         texture.setOnCycleFinished(() -> {
             isAttacking = 0;
         });
+        
+        getGameTimer().runAtInterval(() ->{
+        	players = FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER);
+        }, Duration.seconds(5));
     }
 
     @Override
