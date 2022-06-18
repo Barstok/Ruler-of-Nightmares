@@ -7,6 +7,7 @@ import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.multiplayer.MultiplayerService;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.physics.CollisionHandler;
@@ -45,6 +46,8 @@ public class Game extends GameApplication {
 
 	int current_wave;
 	private Entity monster;
+	
+	private Input clientInput;
 
 	private static final Random randomCoordinates = new Random();
 
@@ -77,26 +80,37 @@ public class Game extends GameApplication {
 		vars.put("level", 1);
 	}
 
-	@Override
 	protected void initInput() {
-		onKey(KeyCode.W, () -> player.getComponent(PlayerAnimationComponent.class).moveUp());
+		if(isServer) {
+			onKey(KeyCode.W, () -> player.getComponent(PlayerAnimationComponent.class).moveUp());
 
-		onKey(KeyCode.S, () -> player.getComponent(PlayerAnimationComponent.class).moveDown());
+			onKey(KeyCode.S, () -> player.getComponent(PlayerAnimationComponent.class).moveDown());
 
-		onKey(KeyCode.A, () -> player.getComponent(PlayerAnimationComponent.class).moveLeft());
+			onKey(KeyCode.A, () -> player.getComponent(PlayerAnimationComponent.class).moveLeft());
 
-		onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
+			onKey(KeyCode.D, () -> player.getComponent(PlayerAnimationComponent.class).moveRight());
 
-		onKeyDown(KeyCode.E, () -> player.getComponent(PlayerAnimationComponent.class).shootFireBall());
+			onKeyDown(KeyCode.E, () -> player.getComponent(PlayerAnimationComponent.class).shootFireBall());
 
-		onKeyDown(KeyCode.SPACE, () -> {
-			player.getComponent(PlayerAnimationComponent.class).attack();
-		});
+			onKeyDown(KeyCode.SPACE, () -> {
+				player.getComponent(PlayerAnimationComponent.class).attack();
+			});
 
-		onKeyDown(KeyCode.Q, () -> {
-			player.getComponent(PlayerAnimationComponent.class).dash();
-		});
+			onKeyDown(KeyCode.Q, () -> {
+				player.getComponent(PlayerAnimationComponent.class).dash();
+			});
+		}
 		
+		clientInput = new Input();
+		
+		onKeyBuilder(clientInput,KeyCode.W)
+				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveUp());
+		onKeyBuilder(clientInput,KeyCode.S)
+				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveDown());
+		onKeyBuilder(clientInput,KeyCode.A)
+				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveLeft());
+		onKeyBuilder(clientInput,KeyCode.D)
+				.onAction(() -> player2.getComponent(PlayerAnimationComponent.class).moveRight());
 		
 	}
 
@@ -130,7 +144,6 @@ public class Game extends GameApplication {
                 isServer = yes;
                 
                 getGameWorld().addEntityFactory(new EntitiesFactory());
-
                 if (yes) {
                     var server = getNetService().newTCPServer(55555);
                     server.setOnConnected(conn -> {
@@ -139,7 +152,7 @@ public class Game extends GameApplication {
                                                           
                         getExecutor().startAsyncFX(() -> ServerSide());
                     });
-
+                    
                     server.startAsync();
 
                 } else {
@@ -178,6 +191,7 @@ public class Game extends GameApplication {
 //	}
 	
 	void ClientSide() {
+		initInput();
 		System.out.println("odpalono client side");
 		// set template background 1440x1776
    		Node node = getAssetLoader().loadTexture("template_dev_map.png");
@@ -198,14 +212,14 @@ public class Game extends GameApplication {
 	void ClientBindViewport() {
 		var playerToFollow = getGameWorld().getEntitiesByType(EntityType.PLAYER);
 		
-		getGameScene().getViewport().bindToEntity(playerToFollow.get(0), getSettings().getActualWidth() / 2,
+		getGameScene().getViewport().bindToEntity(playerToFollow.get(1), getSettings().getActualWidth() / 2,
    				getSettings().getActualHeight() / 2);
 
    		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
 	}
 	
 	void ServerSide() {
-		
+		initInput();
 		current_wave = 0;
         // set template background 1440x1776
    		Node node = getAssetLoader().loadTexture("template_dev_map.png");
@@ -220,7 +234,7 @@ public class Game extends GameApplication {
 		getService(MultiplayerService.class).spawn(connection, player, "Player");
 		getService(MultiplayerService.class).spawn(connection, player2, "Player");
 		
-		 //getService(MultiplayerService.class).addInputReplicationReceiver(connection, clientInput);
+		getService(MultiplayerService.class).addInputReplicationReceiver(connection, clientInput);
            
         // przypisanie "kamery" do pozycji gracza
    		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,
@@ -244,7 +258,7 @@ public class Game extends GameApplication {
 
 	@Override
 	protected void onUpdate(double tpf) {
-
+		clientInput.update(tpf);
 	}
 	
 //	@Override
