@@ -25,7 +25,10 @@ import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -171,24 +174,24 @@ public class Game extends GameApplication {
 		
 	}
 
-//	@Override
-//	protected void initUI() {
-//		Text hpText = new Text("hp: " + player.getComponent(PlayerAnimationComponent.class).getHp().toString());
-//		Text mpText = new Text("mp: " + player.getComponent(PlayerAnimationComponent.class).getMp().toString());
-//		Text lvlText = new Text("level: " + player.getComponent(PlayerAnimationComponent.class).getCurrentLevel().toString());
-//		hpText.setFont(Font.font(13));
-//		mpText.setFont(Font.font(13));
-//		lvlText.setFont(Font.font(13));
-//		hpText.setFill(Color.BLACK);
-//		mpText.setFill(Color.BLACK);
-//		lvlText.setFill(Color.BLACK);
-//		hpText.textProperty().bind(getip("hp").asString("hp: %d"));
-//		mpText.textProperty().bind(getip("mp").asString("mp: %d"));
-//		lvlText.textProperty().bind(getip("level").asString("level: %d"));
-//		addUINode(hpText, 30, 640);
-//		addUINode(mpText, 30, 670);
-//		addUINode(lvlText, 30, 700);
-//	}
+	@Override
+	protected void initUI() {
+		var hpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("hp"), 25);
+		hpRectangle.setFill(Color.RED);
+		var mpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("mp"), 25);
+		// dodałem poniżej dwa prostokąty od hp i mp do zmiennych globalnych, żebyś mógł potem update robić szerokości pasków
+		// w zależności od hp i mp
+		FXGL.getWorldProperties().setValue("hpRectangle", hpRectangle);
+		FXGL.getWorldProperties().setValue("mpRectangle", mpRectangle);
+		mpRectangle.setFill(Color.BLUE);
+		Text lvlText = new Text("level: " + getip("level").asString());
+		lvlText.setFont(Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 17));
+		lvlText.setFill(Color.BLACK);
+		lvlText.textProperty().bind(getip("level").asString("level: %d"));
+		addUINode(hpRectangle, 30, 610);
+		addUINode(mpRectangle, 30, 640);
+		addUINode(lvlText, 30, 700);
+	}
 	
 	void ClientSide() {
 		initInput();
