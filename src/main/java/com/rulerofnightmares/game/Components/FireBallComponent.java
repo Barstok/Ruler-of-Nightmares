@@ -20,8 +20,8 @@ public class FireBallComponent extends Component {
 
     @Override
     public void onAdded(){
-        Entity player = FXGL.getWorldProperties().getObject("player");
-        vector = new Point2D(FXGL.getInput().getMousePositionWorld().getX(), FXGL.getInput().getMousePositionWorld().getY())
+    	Entity player = this.getEntity();
+        vector = new Point2D(FXGL.getInput().getMousePositionUI().getX(), FXGL.getInput().getMousePositionUI().getY())
                 .subtract(player.getCenter()).normalize();
     }
 }

@@ -54,7 +54,7 @@ public class RedRidingHoodAnimationComponent extends Component {
                 Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION), 120, 126);
 
         texture = new AnimatedTexture(animIdle);
-        player = FXGL.getGameWorld().getProperties().getObject("player");
+        //player = FXGL.getGameWorld().getProperties().getObject("player");
     }
 
     public int getHp() {
@@ -112,6 +112,10 @@ public class RedRidingHoodAnimationComponent extends Component {
         texture.setOnCycleFinished(() -> {
             isAttacking = 0;
         });
+        
+        getGameTimer().runAtInterval(() ->{
+        	players = FXGL.getGameWorld().getEntitiesByType(EntityType.PLAYER);
+        }, Duration.seconds(5));
     }
 
     @Override
@@ -128,7 +132,7 @@ public class RedRidingHoodAnimationComponent extends Component {
 //                    }
 //                }, Duration.seconds(RED_RIDING_HOOD_ANIMATION_DURATION));
                 entity.removeFromWorld();
-                player.getComponent(PlayerAnimationComponent.class).incrementXp(XP_GIVEN);
+                //player.getComponent(PlayerAnimationComponent.class).incrementXp(XP_GIVEN);
             }
         }
 

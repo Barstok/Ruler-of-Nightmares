@@ -7,6 +7,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.multiplayer.NetworkComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
 import com.almasb.fxgl.physics.HitBox;
@@ -148,8 +149,8 @@ public class PlayerAnimationComponent extends Component {
 
     private void addHellCircle() {
         if (hellCircleAddLock) return;
-        if (currentLevel >= 3) {
-            Entity player = FXGL.getWorldProperties().getObject("player");
+        if (currentLevel >= 1) {
+        	Entity player = this.getEntity();
             for(int x=0 ; x < MAX_FLAMES ; x++){
                 flames.add( new EntityBuilder()
                         .type(EntityType.BULLET)
@@ -160,6 +161,7 @@ public class PlayerAnimationComponent extends Component {
                         .bbox( new HitBox(new Point2D(2, 2), new CircleShapeData(10)))
                         .collidable()
                         .with( new DamageDealerComponent(HELL_CIRCLE_DMG))
+                        .with(new NetworkComponent())
                         .buildAndAttach());
             }
             hellCircleAddLock = true;
@@ -241,6 +243,7 @@ public class PlayerAnimationComponent extends Component {
         this.dashMultiplier = 1;
         getGameTimer().runAtInterval(this::regenerateHP, Duration.seconds(1));
         getGameTimer().runAtInterval(this::regenerateMp, Duration.seconds(1));
+        addHellCircle();
     }
 
     @Override
@@ -301,7 +304,7 @@ public class PlayerAnimationComponent extends Component {
 
     public void shootFireBall() {
         //zakomentuj ifa, żeby spojrzeć jak to wygląda
-        if (this.currentLevel < 4 || mp < 50) return;
+        if (this.currentLevel < 1 || mp < 50) return;
         spawn("FireBall", entity.getCenter());
         this.mp -= 50;
     }
@@ -330,7 +333,7 @@ public class PlayerAnimationComponent extends Component {
 
     public void dash() {
         //zakomentuj ifa by sprawdzić działanie
-        if (mp < 20 || currentLevel < 2) return;
+        if (mp < 20 || currentLevel < 1) return;
         this.mp -= 20;
         dashMultiplier = dashMultiplierCeiling;
         getGameTimer().runOnceAfter(() -> {
