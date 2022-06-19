@@ -21,7 +21,7 @@ import javafx.geometry.Point2D;
 
 public class HellCircle extends Component {
 
-    public static final int RADIUS = 30;
+    public static final int RADIUS = 50;
 
     public static int MAX_FLAMES = 6;
     

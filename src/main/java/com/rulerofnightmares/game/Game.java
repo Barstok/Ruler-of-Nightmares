@@ -208,10 +208,8 @@ public class Game extends GameApplication {
 	
 	void ClientSide() {
 		initInput();
-		// set template background 1440x1776
-   		Node node = getAssetLoader().loadTexture("template_dev_map.png");
-   		GameView view = new GameView(node, 0);
-   		getGameScene().addGameView(view);
+		
+		FXGL.setLevelFromMap("mapav3.tmx");
 		
    		getService(MultiplayerService.class).addEntityReplicationReceiver(clientConn, getGameWorld());
    		
@@ -249,7 +247,7 @@ public class Game extends GameApplication {
 		initInput();
 		current_wave = 0;
         
-      FXGL.setLevelFromMap("mapav3.tmx");
+		FXGL.setLevelFromMap("mapav3.tmx");
    		
    		initPhysics();
 
