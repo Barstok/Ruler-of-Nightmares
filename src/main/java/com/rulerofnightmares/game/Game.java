@@ -3,7 +3,9 @@ package com.rulerofnightmares.game;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.GameView;
+import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -74,6 +76,15 @@ public class Game extends GameApplication {
 		// pod klawiszem "1" menu, w którym można zaznaczać hitboxy itp.
 		settings.setDeveloperMenuEnabled(true);
 		settings.setMainMenuEnabled(true);
+		
+		settings.setSceneFactory(new SceneFactory() {
+            @Override
+            public FXGLMenu newMainMenu() {
+                //return new SimpleGameMenu();
+                return new MainMenu();
+            }
+        });
+		
 		settings.addEngineService(MultiplayerService.class);
 		settings.setTitle("Ruler of Nightmares");
 		settings.setWidth(1280);
@@ -152,7 +163,6 @@ public class Game extends GameApplication {
 	
 	@Override
 	protected void initGame() {
-
 		runOnce(() -> {
             getDialogService().showConfirmationBox("Are you the host?", yes -> {
                 isServer = yes;
@@ -165,12 +175,12 @@ public class Game extends GameApplication {
 
                         playersConnected++;
                                                           
-                        if(playersConnected == 1) {
-                        	getExecutor().startAsyncFX(() -> ServerSide());
-                        }
+//                        if(playersConnected == 1) {
+//                        	getExecutor().startAsyncFX(() -> ServerSide());
+//                        }
                         getExecutor().startAsyncFX(() -> playerJoined());
                     });
-                    
+                    getExecutor().startAsyncFX(() -> ServerSide());
                     server.startAsync();
 
                 } else {
@@ -253,7 +263,7 @@ public class Game extends GameApplication {
 
    		var temp = spawn("Player",100,100);
    		players.add(temp);
-   		getService(MultiplayerService.class).spawn(connections.get(0), temp, "Player");
+   		//getService(MultiplayerService.class).spawn(connections.get(0), temp, "Player");
 		        
         // przypisanie "kamery" do pozycji gracza
    		getGameScene().getViewport().bindToEntity(players.get(0), getSettings().getActualWidth() / 2,
