@@ -152,7 +152,7 @@ public class Game extends GameApplication {
 	
 	@Override
 	protected void initGame() {
-		
+
 		runOnce(() -> {
             getDialogService().showConfirmationBox("Are you the host?", yes -> {
                 isServer = yes;
@@ -185,7 +185,6 @@ public class Game extends GameApplication {
                 }
             });
         }, Duration.seconds(0.5));
-		
 	}
 
 	@Override
@@ -249,10 +248,8 @@ public class Game extends GameApplication {
 	void ServerSide() {
 		initInput();
 		current_wave = 0;
-        // set template background 1440x1776
-   		Node node = getAssetLoader().loadTexture("template_dev_map.png");
-   		GameView view = new GameView(node, 0);
-   		getGameScene().addGameView(view);
+        
+      FXGL.setLevelFromMap("mapav3.tmx");
    		
    		initPhysics();
 

@@ -27,6 +27,8 @@ public class RedRidingHoodAnimationComponent extends Component {
     private int hp = 100;
     private int v_speed = 0;
     private int isAttacking = 0;
+    
+    private static float SCALE_FACTOR = (float)1.5;
 
     private boolean isAttacked;
 
@@ -101,6 +103,7 @@ public class RedRidingHoodAnimationComponent extends Component {
     public void onAdded() {
         entity.getTransformComponent().setScaleOrigin(new Point2D(56, 66.5));
         entity.getViewComponent().addChild(texture);
+        entity.setScaleUniform(SCALE_FACTOR);
         // texture.playAnimationChannel(animSpawn);
         texture.loopAnimationChannel(animIdle);
         getGameTimer().runOnceAfter(this::startAI, Duration.seconds(1));
@@ -150,13 +153,13 @@ public class RedRidingHoodAnimationComponent extends Component {
     public void moveRight() {
         speed = 150;
 
-        getEntity().setScaleX(-1);
+        getEntity().setScaleX(-SCALE_FACTOR);
     }
 
     public void moveLeft() {
         speed = -150;
 
-        getEntity().setScaleX(1);
+        getEntity().setScaleX(SCALE_FACTOR);
     }
 
     public void moveUp() {

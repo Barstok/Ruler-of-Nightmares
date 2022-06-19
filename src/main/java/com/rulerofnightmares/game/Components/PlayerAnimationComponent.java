@@ -49,6 +49,8 @@ public class PlayerAnimationComponent extends Component {
     private static final double FLAME_CENTER = 12.5;
 
     private List<Entity> flames = new ArrayList<Entity>();
+    
+    private static int SCALE_FACTOR = 2;
 
     private static int HP_INCREMENT = 1;
 
@@ -226,12 +228,12 @@ public class PlayerAnimationComponent extends Component {
         this.isAttacked = true;
         this.hp -= dmg;
     }
-
   
     @Override
     public void onAdded() {
         entity.getTransformComponent().setScaleOrigin(new Point2D(16, 16));
         entity.getViewComponent().addChild(texture);
+        entity.setScaleUniform(SCALE_FACTOR);
         this.isAttacked = false;
         isTransformed = false;
         this.hp = 100;
@@ -291,13 +293,13 @@ public class PlayerAnimationComponent extends Component {
     public void moveRight() {
         speed = 150;
         
-        getEntity().setScaleX(1);
+        getEntity().setScaleX(SCALE_FACTOR);
     }
 
     public void moveLeft() {
         speed = -150;
 
-        getEntity().setScaleX(-1);
+        getEntity().setScaleX(-SCALE_FACTOR);
     }
 
     public void shootFireBall() {
