@@ -33,7 +33,7 @@ public class Game extends GameApplication {
 
 	private final static int MAX_WAVES = 7;
 
-	private final static int WAVES_WAIT_FACTOR = 30;
+	private final static int WAVES_WAIT_FACTOR = 5;
 
 	private final static double RANDOM_BOUNDARY = 777;
 
@@ -114,9 +114,11 @@ public class Game extends GameApplication {
 		getGameWorld().addEntityFactory(new EntitiesFactory());
 
 		// set template background 1440x1776
-		Node node = getAssetLoader().loadTexture("template_dev_map.png");
-		GameView view = new GameView(node, 0);
-		getGameScene().addGameView(view);
+//		Node node = getAssetLoader().loadTexture("template_dev_map.png");
+//		GameView view = new GameView(node, 0);
+//		getGameScene().addGameView(view);
+		
+		FXGL.setLevelFromMap("mapav3.tmx");
 
 		player = spawn("Player", 100, 100);
 		FXGL.getWorldProperties().setValue("player", player);
@@ -125,7 +127,7 @@ public class Game extends GameApplication {
 		getGameScene().getViewport().bindToEntity(player, getSettings().getActualWidth() / 2,
 				getSettings().getActualHeight() / 2);
 		// ustawienie granic kamery
-		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
+		getGameScene().getViewport().setBounds(10, 10, 2400, 2400);
 		wavesSpawner = getGameTimer().runAtInterval(() -> {
 			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
 			for (int i = 0; i < ENEMIES_PER_WAVE_FACTOR * (current_wave + 1); i++) {

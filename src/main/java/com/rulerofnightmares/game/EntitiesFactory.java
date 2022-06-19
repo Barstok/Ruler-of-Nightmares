@@ -32,6 +32,15 @@ import java.util.List;
 
 public class EntitiesFactory implements EntityFactory {
     
+	@Spawns("wall")
+	public Entity newWall(SpawnData data) {
+		return FXGL.entityBuilder(data)
+				.from(data)
+				.bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
+				.with(new PhysicsComponent())
+				.build();
+	}
+	
     @Spawns("Player")
 	public Entity newPlayer(SpawnData data) {
 		
