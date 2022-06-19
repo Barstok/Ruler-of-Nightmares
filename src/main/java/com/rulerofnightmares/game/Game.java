@@ -109,21 +109,21 @@ public class Game extends GameApplication {
 		}
 	}
 	
-	void initClientInput() {
+	void initClientInput(int connectionNum) {
 		clientInputs.add( new Input());
 		
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.W)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveUp());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveUp());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.S)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveDown());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveDown());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.A)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveLeft());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveLeft());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.D)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).moveRight());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveRight());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.SPACE)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).attack());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).attack());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.Q)
-				.onAction(() -> players.get(playersConnected).getComponent(PlayerAnimationComponent.class).dash());
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).dash());
 	}
 
 
@@ -244,7 +244,7 @@ public class Game extends GameApplication {
 		for(var conns : connections) {
 			getService(MultiplayerService.class).spawn(conns, temp, "Player");
 		}
-		initClientInput();
+		initClientInput(playersConnected);
 		getService(MultiplayerService.class).addInputReplicationReceiver(conn, clientInputs.get(playersConnected-1));
 	}
 	
