@@ -12,6 +12,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.multiplayer.MultiplayerService;
 import com.almasb.fxgl.net.Connection;
+import com.almasb.fxgl.net.MessageHandler;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.Components.DamageDealerComponent;
@@ -66,7 +67,15 @@ public class Game extends GameApplication {
 	private List<Input> clientInputs = new ArrayList<Input>();
 	
 	private Connection<Bundle> clientConn;
-	private List<Connection<Bundle>> connections = new ArrayList<Connection<Bundle>>();
+	public static List<Connection<Bundle>> connections = new ArrayList<Connection<Bundle>>();
+	private int myConnNum = -1;
+	
+	public static int myHp = 100;
+	private int myHpComp = 100;
+	private Rectangle hpRectangle;
+	private Rectangle mpRectangle;
+	
+	private Entity myPlayer;
 	
 	TimerAction wavesSpawner;
 
@@ -169,11 +178,16 @@ public class Game extends GameApplication {
                 
                 getGameWorld().addEntityFactory(new EntitiesFactory());
                 if (yes) {
+                	myConnNum = 0;
                     var server = getNetService().newTCPServer(55555);
                     server.setOnConnected(conn -> {
                         connections.add(conn);
-
                         playersConnected++;
+                        
+                        var data = new Bundle("");
+                        data.put("myConnNum", playersConnected);
+
+                        conn.send(data);
                                                           
 //                        if(playersConnected == 1) {
 //                        	getExecutor().startAsyncFX(() -> ServerSide());
@@ -187,6 +201,17 @@ public class Game extends GameApplication {
                     var client = getNetService().newTCPClient("localhost", 55555);
                     client.setOnConnected(conn -> {
                         clientConn = conn;
+                        
+                        conn.addMessageHandlerFX((connn, message) -> {
+                        	if(myConnNum == -1) {
+                        		var xd = message.get("myConnNum");
+                        		if(xd != null) myConnNum = (int) xd;	
+                        	}
+                        	var xd = message.get("myHp");
+                    		if(xd != null) {
+                    		myHp = (int) xd;
+                    		System.out.println(xd);
+                        }});
 
                         getExecutor().startAsyncFX(() -> ClientSide());
                         
@@ -196,16 +221,11 @@ public class Game extends GameApplication {
             });
         }, Duration.seconds(0.5));
 	}
-
-	@Override
-	protected void initUI() {
-		var hpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("hp"), 25);
+	
+	void UIinit() {
+		hpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("hp"), 25);
 		hpRectangle.setFill(Color.RED);
-		var mpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("mp"), 25);
-		// dodałem poniżej dwa prostokąty od hp i mp do zmiennych globalnych, żebyś mógł potem update robić szerokości pasków
-		// w zależności od hp i mp
-		FXGL.getWorldProperties().setValue("hpRectangle", hpRectangle);
-		FXGL.getWorldProperties().setValue("mpRectangle", mpRectangle);
+		mpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("mp"), 25);
 		mpRectangle.setFill(Color.BLUE);
 		Text lvlText = new Text("level: " + getip("level").asString());
 		lvlText.setFont(Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 17));
@@ -223,8 +243,12 @@ public class Game extends GameApplication {
 		
    		getService(MultiplayerService.class).addEntityReplicationReceiver(clientConn, getGameWorld());
    		
+   		
+   		UIinit();
    		runOnce(() ->{
    			ClientBindViewport();
+   			System.out.println(myConnNum);
+   			myPlayer = getGameWorld().getEntitiesByType(EntityType.PLAYER).get(myConnNum);
    		},Duration.seconds(2));
    		
    		getService(MultiplayerService.class).addInputReplicationSender(clientConn, getInput());
@@ -263,7 +287,10 @@ public class Game extends GameApplication {
 
    		var temp = spawn("Player",100,100);
    		players.add(temp);
+   		myPlayer=temp;
    		//getService(MultiplayerService.class).spawn(connections.get(0), temp, "Player");
+   		
+   		UIinit();
 		        
         // przypisanie "kamery" do pozycji gracza
    		getGameScene().getViewport().bindToEntity(players.get(0), getSettings().getActualWidth() / 2,
@@ -291,6 +318,13 @@ public class Game extends GameApplication {
 	protected void onUpdate(double tpf) {
 		for(var input : clientInputs) {
 			input.update(tpf);
+		}
+		if(hpRectangle != null && mpRectangle != null && myPlayer != null) {
+			hpRectangle.setWidth(myHp);
+			if(myHp!=myHpComp) {
+				myHpComp = myHp;
+				FXGL.getGameScene().getViewport().shakeTranslational(3);
+			}
 		}
 	}
 	

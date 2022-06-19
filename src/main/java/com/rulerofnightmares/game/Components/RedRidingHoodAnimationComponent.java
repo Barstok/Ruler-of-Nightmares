@@ -1,12 +1,14 @@
 package com.rulerofnightmares.game.Components;
 
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.*;
 
 import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.EntityType;
+import com.rulerofnightmares.game.Game;
 
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
@@ -80,6 +82,14 @@ public class RedRidingHoodAnimationComponent extends Component {
                     if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) <= 10
                             && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) <= 10) {
                         player.getComponent(PlayerAnimationComponent.class).receiveDmg(2);
+                        if(i != 0) {
+                        	var data = new Bundle("");
+                            data.put("myHp",player.getComponent(PlayerAnimationComponent.class).getHp());
+                            Game.connections.get(i-1).send(data);
+                        }
+                        else {
+                        	Game.myHp = player.getComponent(PlayerAnimationComponent.class).getHp();
+                        }
                         this.attack();
                     } else if (FXGLMath.abs(getEntity().getCenter().getX() - player.getCenter().getX()) < 100
                             && FXGLMath.abs(getEntity().getCenter().getY() - player.getCenter().getY()) < 100) {
