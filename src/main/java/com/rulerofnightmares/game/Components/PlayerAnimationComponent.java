@@ -164,7 +164,6 @@ public class PlayerAnimationComponent extends Component {
             }
             hellCircleAddLock = true;
         }
-        System.out.println("sp¹ hel cirkul");
     }
 
     private void rotateHellCircle() {

@@ -181,7 +181,6 @@ public class Game extends GameApplication {
                         getExecutor().startAsyncFX(() -> ClientSide());
                         
                     });
-                    System.out.println("odpalono client connect async");
                     client.connectAsync();
                 }
             });
@@ -210,7 +209,6 @@ public class Game extends GameApplication {
 	
 	void ClientSide() {
 		initInput();
-		System.out.println("odpalono client side");
 		// set template background 1440x1776
    		Node node = getAssetLoader().loadTexture("template_dev_map.png");
    		GameView view = new GameView(node, 0);
@@ -223,8 +221,6 @@ public class Game extends GameApplication {
    		},Duration.seconds(2));
    		
    		getService(MultiplayerService.class).addInputReplicationSender(clientConn, getInput());
-		System.out.println(getGameWorld().getEntitiesByType(EntityType.PLAYER).isEmpty());
-		
 	}
 	
 	void ClientBindViewport() {
