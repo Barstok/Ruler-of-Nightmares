@@ -120,6 +120,8 @@ public class Game extends GameApplication {
 				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveLeft());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.D)
 				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).moveRight());
+		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.E)
+				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).shootFireBall());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.SPACE)
 				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).attack());
 		onKeyBuilder(clientInputs.get(playersConnected-1),KeyCode.Q)
