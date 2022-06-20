@@ -17,6 +17,7 @@ import com.almasb.fxgl.texture.*;
 
 import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
+import com.rulerofnightmares.game.EndScreen;
 import com.rulerofnightmares.game.EntityType;
 import com.rulerofnightmares.game.Game;
 
@@ -273,9 +274,7 @@ public class PlayerAnimationComponent extends Component {
         		System.out.println(Game.players.size());
                 if(Game.deaths == Game.server.getConnections().size()) {
                 	if(Game.myPlayer != null) {
-                		FXGL.runOnce(() -> showMessage("You won!", () -> {
-                			getGameController().gotoMainMenu();
-                			}), Duration.seconds(1));
+                		FXGL.getSceneService().pushSubScene(new EndScreen(1));;
                 	}
                 	var data = new Bundle("");
                     data.put("won","1");

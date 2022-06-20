@@ -50,7 +50,7 @@ public class Game extends GameApplication {
 
 	private final static int MAX_WAVES = 7;
 
-	private final static int WAVES_WAIT_FACTOR = 30;
+	private final static int WAVES_WAIT_FACTOR = 6;
 
 	private final static double RANDOM_BOUNDARY = 777;
 
@@ -217,9 +217,7 @@ public class Game extends GameApplication {
                     		}
                     		xd = message.get("won");
                     		if(xd!=null) {
-                    			showMessage("You won!", () -> {
-                    			getGameController().gotoMainMenu();
-                    			});	
+                    			FXGL.getSceneService().pushSubScene(new EndScreen(1));
                     		}
                     	});
 
@@ -358,9 +356,9 @@ public class Game extends GameApplication {
 			}
 			mpRectangle.setWidth(myMp);
 			if(myHp<myHpComp) {
-				if(myHp <=0) showMessage("You died!", () -> {
-        			getGameController().gotoMainMenu();
-        			});	
+				if(myHp <=0) {
+					FXGL.getSceneService().pushSubScene(new EndScreen(0));
+        		}
 				myHpComp = myHp;
 				FXGL.getGameScene().getViewport().shakeTranslational(10);
 			}
