@@ -85,7 +85,9 @@ public class RedRidingHoodAnimationComponent extends Component {
                         if(i != 0) {
                         	var data = new Bundle("");
                             data.put("myHp",player.getComponent(PlayerAnimationComponent.class).getHp());
-                            Game.connections.get(i-1).send(data);
+                            try {
+                            	Game.connections.get(i-1).send(data);
+                            }catch(Exception e){};
                         }
                         else {
                         	Game.myHp = player.getComponent(PlayerAnimationComponent.class).getHp();

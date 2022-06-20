@@ -2,11 +2,13 @@ package com.rulerofnightmares.game.Components;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.EntityBuilder;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.CollidableComponent;
+import com.almasb.fxgl.multiplayer.MultiplayerService;
 import com.almasb.fxgl.multiplayer.NetworkComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.CircleShapeData;
@@ -16,6 +18,8 @@ import com.almasb.fxgl.texture.*;
 import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.Components.PassiveAbilities.HellCircle;
 import com.rulerofnightmares.game.EntityType;
+import com.rulerofnightmares.game.Game;
+
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
@@ -24,6 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.almasb.fxgl.dsl.FXGL.getGameController;
+import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
+import static com.almasb.fxgl.dsl.FXGL.getService;
+import static com.almasb.fxgl.dsl.FXGL.showMessage;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameTimer;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 
@@ -98,7 +106,10 @@ public class PlayerAnimationComponent extends Component {
     public void regenerateMp() {
         if (this.mp >= maxMP) return;
         if (this.mp + MP_INCREMENT >= maxMP) this.mp = maxMP;
-        else this.mp += MP_INCREMENT;
+        else { 
+        	this.mp += MP_INCREMENT;
+        	if( Game.players.size() >=1 && this.entity == Game.players.get(0)) Game.myMp = this.mp;
+    	}
     }
 
     public PlayerAnimationComponent() {
@@ -126,7 +137,9 @@ public class PlayerAnimationComponent extends Component {
     }
 
     public void incrementCurrentLevel() {
+    	System.out.println("LEVEL UP!");
         this.currentLevel++;
+        FXGL.set("level", this.currentLevel);
     }
 
     public int getXp() {
@@ -144,7 +157,10 @@ public class PlayerAnimationComponent extends Component {
     public void regenerateHP() {
         if (this.hp >= maxHP) return;
         if (this.hp + HP_INCREMENT >= maxHP) this.hp = maxHP;
-        else this.hp += HP_INCREMENT;
+        else {
+        	this.hp += HP_INCREMENT;
+        	if( Game.players.size() >=1 && this.entity == Game.players.get(0)) Game.myHp = this.hp;
+        }
     }
 
     private void addHellCircle() {
@@ -252,7 +268,24 @@ public class PlayerAnimationComponent extends Component {
         entity.translateY(v_speed * tpf * dashMultiplier);
 
         if (this.hp <= 0) {
-            getGameTimer().runOnceAfter(entity::removeFromWorld, Duration.seconds(1));
+        	System.out.println("ZESZLO PONIZEJ ZERA");
+        	Game.deaths++;
+        	if(Game.isServer == true) {
+        		System.out.println("TAK TO JEST SERVER");
+        		System.out.println(Game.players.size());
+                if(Game.deaths == Game.server.getConnections().size()) {
+                	if(Game.myPlayer != null) {
+                		System.out.println("MYPLAYER TO NIE NULL");
+                		FXGL.runOnce(() -> showMessage("You won!", () -> {
+                			getGameController().gotoMainMenu();
+                			}), Duration.seconds(1));
+                	}
+                	var data = new Bundle("");
+                    data.put("died","1");
+                    Game.server.broadcast(data);
+                }
+            }
+            entity.removeFromWorld();
         }
 
         if (hellCircleAddLock) {
@@ -307,6 +340,7 @@ public class PlayerAnimationComponent extends Component {
         if (this.currentLevel < 1 || mp < 50) return;
         spawn("FireBall", entity.getCenter());
         this.mp -= 50;
+        if(Game.myConnNum==0) Game.myMp = this.mp;
     }
     
     public void moveUp() {
@@ -335,6 +369,7 @@ public class PlayerAnimationComponent extends Component {
         //zakomentuj ifa by sprawdzić działanie
         if (mp < 20 || currentLevel < 1) return;
         this.mp -= 20;
+        if(Game.myConnNum==0) Game.myMp = this.mp;
         dashMultiplier = dashMultiplierCeiling;
         getGameTimer().runOnceAfter(() -> {
             dashMultiplier = 1;

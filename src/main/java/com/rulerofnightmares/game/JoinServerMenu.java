@@ -71,7 +71,7 @@ public class JoinServerMenu extends FXGLMenu {
         });
         
         Text textJoinButton = FXGL.getUIFactoryService().newText("JOIN", Color.WHITE, FontType.GAME, 40.0);
-        textJoinButton.setTranslateX(windowLength/2-50);
+        textJoinButton.setTranslateX(windowLength/2-48);
         textJoinButton.setTranslateY(windowHeight/2+150);
         textJoinButton.setMouseTransparent(true);
         

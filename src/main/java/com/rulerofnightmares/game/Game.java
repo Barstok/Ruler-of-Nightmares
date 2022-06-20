@@ -11,8 +11,10 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.input.Input;
 import com.almasb.fxgl.multiplayer.MultiplayerService;
+import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.net.MessageHandler;
+import com.almasb.fxgl.net.Server;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.time.TimerAction;
 import com.rulerofnightmares.game.Components.DamageDealerComponent;
@@ -45,14 +47,11 @@ public class Game extends GameApplication {
 
 	private final static int MAX_WAVES = 7;
 
-	private final static int WAVES_WAIT_FACTOR = 5;
+	private final static int WAVES_WAIT_FACTOR = 30;
 
 	private final static double RANDOM_BOUNDARY = 777;
 
 	int current_wave;
-	private Entity monster;
-	
-	private Input clientInput;
 
 	private static final Random randomCoordinates = new Random();
 
@@ -62,22 +61,27 @@ public class Game extends GameApplication {
 	
 	public static boolean isServer;
 	
+	public static Server<Bundle> server;
+	public static Client<Bundle> client;
+	
 	public static String ip;
 	
-	private List<Entity> players = new ArrayList<Entity>();
+	public static List<Entity> players = new ArrayList<Entity>();
 	
 	private List<Input> clientInputs = new ArrayList<Input>();
 	
 	private Connection<Bundle> clientConn;
 	public static List<Connection<Bundle>> connections = new ArrayList<Connection<Bundle>>();
-	private int myConnNum = -1;
+	public static int myConnNum = -1;
 	
+	public static int deaths = 0;
 	public static int myHp = 100;
+	public static int myMp = 100;
 	private int myHpComp = 100;
 	private Rectangle hpRectangle;
 	private Rectangle mpRectangle;
 	
-	private Entity myPlayer;
+	public static Entity myPlayer;
 	
 	TimerAction wavesSpawner;
 
@@ -150,15 +154,13 @@ public class Game extends GameApplication {
 				.onAction(() -> players.get(connectionNum).getComponent(PlayerAnimationComponent.class).dash());
 	}
 
-
-
 	protected void initPhysics() {
 		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.ENEMY) {
 			@Override
 			protected void onCollisionBegin(Entity normalAttack, Entity enemy) {
 				int dmg = normalAttack.getComponent(DamageDealerComponent.class).dealDmg();
 				enemy.getComponent(RedRidingHoodAnimationComponent.class).receiveDmg(dmg);
-				//players.getComponent(PlayerAnimationComponent.class).incrementXp(20);
+				players.get(0).getComponent(PlayerAnimationComponent.class).incrementXp(20);
 			}
 		});
 
@@ -178,7 +180,7 @@ public class Game extends GameApplication {
                 getGameWorld().addEntityFactory(new EntitiesFactory());
                 if (isServer) {
                 	myConnNum = 0;
-                    var server = getNetService().newTCPServer(55555);
+                    server = getNetService().newTCPServer(55555);
                     server.setOnConnected(conn -> {
                         connections.add(conn);
                         playersConnected++;
@@ -195,9 +197,9 @@ public class Game extends GameApplication {
                     });
                     getExecutor().startAsyncFX(() -> ServerSide());
                     server.startAsync();
-
+                    
                 } else {
-                    var client = getNetService().newTCPClient(ip, 55555);
+                    client = getNetService().newTCPClient(ip, 55555);
                     client.setOnConnected(conn -> {
                         clientConn = conn;
                         
@@ -209,8 +211,14 @@ public class Game extends GameApplication {
                         	var xd = message.get("myHp");
                     		if(xd != null) {
                     		myHp = (int) xd;
-                    		System.out.println(xd);
-                        }});
+                    		}
+                    		xd = message.get("died");
+                    		if(xd!=null) {
+                    			showMessage("You died!", () -> {
+                    			getGameController().gotoMainMenu();
+                    			});	
+                    		}
+                    	});
 
                         getExecutor().startAsyncFX(() -> ClientSide());
                         
@@ -221,14 +229,17 @@ public class Game extends GameApplication {
 	}
 	
 	void UIinit() {
+		var bgRectangle = new Rectangle(240,100);
+		bgRectangle.setFill(Color.BLACK);
 		hpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("hp"), 25);
 		hpRectangle.setFill(Color.RED);
 		mpRectangle = new Rectangle(FXGL.getWorldProperties().getInt("mp"), 25);
 		mpRectangle.setFill(Color.BLUE);
 		Text lvlText = new Text("level: " + getip("level").asString());
 		lvlText.setFont(Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 17));
-		lvlText.setFill(Color.BLACK);
+		lvlText.setFill(Color.WHITE);
 		lvlText.textProperty().bind(getip("level").asString("level: %d"));
+		addUINode(bgRectangle, 25, 605);
 		addUINode(hpRectangle, 30, 610);
 		addUINode(mpRectangle, 30, 640);
 		addUINode(lvlText, 30, 700);
@@ -299,53 +310,60 @@ public class Game extends GameApplication {
    		// ustawienie granic kamery
    		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
    		
-   		for(int x=0 ;x<30;x++) {
-   			var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);	
-   			for(var conn: connections) {
-   				getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
-   			}
-   		}
+//   		for(int x=0 ;x<30;x++) {
+//   			var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);	
+//   			for(var conn: connections) {
+//   				getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
+//   			}
+//   		}
    		
 		
-//		wavesSpawner = getGameTimer().runAtInterval(() -> {
-//			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
-//			for (int i = 0; i < ENEMIES_PER_WAVE_FACTOR * (current_wave + 1); i++) {
-//				var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
-//				getService(MultiplayerService.class).spawn(connection, nmy, "RedRidingHood");
-//			}
-//			current_wave++;
-//		}, Duration.seconds(WAVES_WAIT_FACTOR));
+		wavesSpawner = getGameTimer().runAtInterval(() -> {
+			System.out.println("NOWA FALA! USUWAMY ENEMIES");
+			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
+			for (int i = 0; i < ENEMIES_PER_WAVE_FACTOR * (current_wave + 1); i++) {
+				var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
+				for(var conn: connections) {
+	   				getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
+	   			}
+			}
+			current_wave++;
+		}, Duration.seconds(WAVES_WAIT_FACTOR));
 	}
 
 	@Override
 	protected void onUpdate(double tpf) {
+		if (current_wave == MAX_WAVES) {
+			wavesSpawner.expire();
+			//FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
+		}
+		if(myConnNum!=-1 && players.size()>myConnNum) {
+			if (players.get(myConnNum).getComponent(PlayerAnimationComponent.class).getHp()<=0) {
+				if(client != null) client.disconnect();
+				showMessage("You died!", () -> {
+					getGameController().gotoMainMenu();
+				});
+			}
+		}
+		
 		for(var input : clientInputs) {
 			input.update(tpf);
 		}
 		if(hpRectangle != null && mpRectangle != null && myPlayer != null) {
-			hpRectangle.setWidth(myHp);
-			if(myHp!=myHpComp) {
+			if(myConnNum == 0||myConnNum == -1) {
+				hpRectangle.setWidth(myHp);
+			}
+			mpRectangle.setWidth(myMp);
+			if(myHp<myHpComp) {
+				if(myHp <=0) showMessage("You died!", () -> {
+        			getGameController().gotoMainMenu();
+        			});	
 				myHpComp = myHp;
-				FXGL.getGameScene().getViewport().shakeTranslational(3);
+				FXGL.getGameScene().getViewport().shakeTranslational(10);
 			}
 		}
 	}
 	
-//	@Override
-//	protected void onUpdate(double tpf) {
-//		if (current_wave == MAX_WAVES) {
-//			wavesSpawner.expire();
-//			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
-//		}
-//		FXGL.getWorldProperties().setValue("hp", player.getComponent(PlayerAnimationComponent.class).getHp());
-//		FXGL.getWorldProperties().setValue("mp", player.getComponent(PlayerAnimationComponent.class).getMp());
-//		FXGL.getWorldProperties().setValue("level", player.getComponent(PlayerAnimationComponent.class).getCurrentLevel());
-//		if (getip("hp").getValue() <= 0) {
-//			showMessage("You died!", () -> {
-//				getGameController().gotoMainMenu();
-//			});
-//		}
-//	}
 
 	public static void main(String[] args) {
 		launch(args);
