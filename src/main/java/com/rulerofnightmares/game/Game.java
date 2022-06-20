@@ -50,7 +50,7 @@ public class Game extends GameApplication {
 
 	private final static int MAX_WAVES = 7;
 
-	private final static int WAVES_WAIT_FACTOR = 6;
+	private final static int WAVES_WAIT_FACTOR = 20;
 
 	private final static double RANDOM_BOUNDARY = 777;
 
@@ -320,8 +320,6 @@ public class Game extends GameApplication {
    		
 		
 		wavesSpawner = getGameTimer().runAtInterval(() -> {
-			System.out.println("NOWA FALA! USUWAMY ENEMIES");
-			FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
 			for (int i = 0; i < ENEMIES_PER_WAVE_FACTOR * (current_wave + 1); i++) {
 				var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);
 				for(var conn: connections) {
@@ -336,7 +334,6 @@ public class Game extends GameApplication {
 	protected void onUpdate(double tpf) {
 		if (current_wave == MAX_WAVES) {
 			wavesSpawner.expire();
-			//FXGL.getGameWorld().getEntitiesByType(EntityType.ENEMY).forEach(Entity::removeFromWorld);
 		}
 		if(myConnNum!=-1 && players.size()>myConnNum) {
 			if (players.get(myConnNum).getComponent(PlayerAnimationComponent.class).getHp()<=0) {

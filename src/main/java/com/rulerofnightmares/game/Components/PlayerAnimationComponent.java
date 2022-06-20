@@ -271,14 +271,15 @@ public class PlayerAnimationComponent extends Component {
         if (this.hp <= 0) {
         	Game.deaths++;
         	if(Game.isServer == true) {
-        		System.out.println(Game.players.size());
                 if(Game.deaths == Game.server.getConnections().size()) {
                 	if(Game.myPlayer != null) {
                 		FXGL.getSceneService().pushSubScene(new EndScreen(1));;
                 	}
-                	var data = new Bundle("");
-                    data.put("won","1");
-                    Game.server.broadcast(data);
+                	else {
+                		var data = new Bundle("");
+                        data.put("won","1");
+                        Game.server.broadcast(data);
+                	}
                 }
             }
             entity.removeFromWorld();
