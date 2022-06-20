@@ -40,6 +40,7 @@ import javafx.util.Duration;
 
         public MainMenu() {
             super(MenuType.MAIN_MENU);
+            FXGL.loopBGM("doom_eternal.mp3");
                  
             var windowLength = FXGL.getAppWidth();
             var windowHeight = FXGL.getAppHeight();

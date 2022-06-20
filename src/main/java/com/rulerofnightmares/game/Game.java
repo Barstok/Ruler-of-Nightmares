@@ -6,6 +6,9 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.GameView;
 import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.audio.Audio;
+import com.almasb.fxgl.audio.AudioType;
+import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -212,9 +215,9 @@ public class Game extends GameApplication {
                     		if(xd != null) {
                     		myHp = (int) xd;
                     		}
-                    		xd = message.get("died");
+                    		xd = message.get("won");
                     		if(xd!=null) {
-                    			showMessage("You died!", () -> {
+                    			showMessage("You won!", () -> {
                     			getGameController().gotoMainMenu();
                     			});	
                     		}
@@ -294,7 +297,7 @@ public class Game extends GameApplication {
 		current_wave = 0;
         
 		FXGL.setLevelFromMap("mapav3.tmx");
-   		
+		
    		initPhysics();
 
    		var temp = spawn("Player",100,100);

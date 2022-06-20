@@ -268,20 +268,17 @@ public class PlayerAnimationComponent extends Component {
         entity.translateY(v_speed * tpf * dashMultiplier);
 
         if (this.hp <= 0) {
-        	System.out.println("ZESZLO PONIZEJ ZERA");
         	Game.deaths++;
         	if(Game.isServer == true) {
-        		System.out.println("TAK TO JEST SERVER");
         		System.out.println(Game.players.size());
                 if(Game.deaths == Game.server.getConnections().size()) {
                 	if(Game.myPlayer != null) {
-                		System.out.println("MYPLAYER TO NIE NULL");
                 		FXGL.runOnce(() -> showMessage("You won!", () -> {
                 			getGameController().gotoMainMenu();
                 			}), Duration.seconds(1));
                 	}
                 	var data = new Bundle("");
-                    data.put("died","1");
+                    data.put("won","1");
                     Game.server.broadcast(data);
                 }
             }
