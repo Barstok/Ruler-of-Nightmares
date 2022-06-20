@@ -13,7 +13,9 @@ import com.almasb.fxgl.core.util.EmptyRunnable;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.ui.FontType;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -103,7 +105,7 @@ import javafx.util.Duration;
             textExit.setTranslateY(windowHeight/2+140);
             textExit.setMouseTransparent(true);
             
-            shape.setOnMouseClicked(e -> fireNewGame());
+            shape.setOnMouseClicked(e -> FXGL.getSceneService().pushSubScene(new NewGameMenu()));
             shape3.setOnMouseClicked( e-> FXGL.getGameController().exit());
 
             getContentRoot().getChildren().addAll(shape, shape2, shape3, textNewGame, textExit, textOptions);

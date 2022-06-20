@@ -60,7 +60,9 @@ public class Game extends GameApplication {
 	
 	private int playersConnected = 0;
 	
-	private boolean isServer;
+	public static boolean isServer;
+	
+	public static String ip;
 	
 	private List<Entity> players = new ArrayList<Entity>();
 	
@@ -173,11 +175,8 @@ public class Game extends GameApplication {
 	@Override
 	protected void initGame() {
 		runOnce(() -> {
-            getDialogService().showConfirmationBox("Are you the host?", yes -> {
-                isServer = yes;
-                
                 getGameWorld().addEntityFactory(new EntitiesFactory());
-                if (yes) {
+                if (isServer) {
                 	myConnNum = 0;
                     var server = getNetService().newTCPServer(55555);
                     server.setOnConnected(conn -> {
@@ -198,7 +197,7 @@ public class Game extends GameApplication {
                     server.startAsync();
 
                 } else {
-                    var client = getNetService().newTCPClient("localhost", 55555);
+                    var client = getNetService().newTCPClient(ip, 55555);
                     client.setOnConnected(conn -> {
                         clientConn = conn;
                         
@@ -218,7 +217,6 @@ public class Game extends GameApplication {
                     });
                     client.connectAsync();
                 }
-            });
         }, Duration.seconds(0.5));
 	}
 	
