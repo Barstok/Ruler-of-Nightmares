@@ -266,6 +266,9 @@ public class Game extends GameApplication {
 		for(var entity: getGameWorld().getEntitiesByType(EntityType.PLAYER)) {
 			getService(MultiplayerService.class).spawn(conn, entity, "Player");
 		}
+		for(var entity: getGameWorld().getEntitiesByType(EntityType.ENEMY)) {
+			getService(MultiplayerService.class).spawn(conn, entity, "RedRidingHood");
+		}
 		var temp = spawn("Player",100+100*playersConnected,100+100*playersConnected);
 		players.add(temp);
 		for(var conns : connections) {
@@ -296,10 +299,12 @@ public class Game extends GameApplication {
    		// ustawienie granic kamery
    		getGameScene().getViewport().setBounds(10, 10, 1430, 1766);
    		
-   		var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);	
-		for(var conn: connections) {
-			getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
-		}
+   		for(int x=0 ;x<30;x++) {
+   			var nmy = spawn("RedRidingHood", randomCoordinates.nextDouble() * RANDOM_BOUNDARY, randomCoordinates.nextDouble() * RANDOM_BOUNDARY);	
+   			for(var conn: connections) {
+   				getService(MultiplayerService.class).spawn(conn, nmy, "RedRidingHood");
+   			}
+   		}
    		
 		
 //		wavesSpawner = getGameTimer().runAtInterval(() -> {
