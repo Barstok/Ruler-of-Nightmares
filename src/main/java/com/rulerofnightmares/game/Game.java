@@ -177,6 +177,19 @@ public class Game extends GameApplication {
 		});
 	}
 	
+	void addPlayerCollisions() {
+		getPhysicsWorld().addCollisionHandler(new CollisionHandler(EntityType.PLAYER_NORMAL_ATTACK, EntityType.PLAYER) {
+			@Override
+			protected void onCollisionBegin(Entity attack, Entity player){
+				if(player != players.get(0)) {
+					int dmg = attack.getComponent(DamageDealerComponent.class).dealDmg();
+					player.getComponent(PlayerAnimationComponent.class).receiveDmg(dmg);
+				}
+				//troche sie syf narobil z "uniwersalnoscia", trzeba bedzie to przepisac sensowniej
+			}
+		});
+	}
+	
 	@Override
 	protected void initGame() {
 		runOnce(() -> {
@@ -334,6 +347,7 @@ public class Game extends GameApplication {
 	protected void onUpdate(double tpf) {
 		if (current_wave == MAX_WAVES) {
 			wavesSpawner.expire();
+			addPlayerCollisions();
 		}
 		if(myConnNum!=-1 && players.size()>myConnNum) {
 			if (players.get(myConnNum).getComponent(PlayerAnimationComponent.class).getHp()<=0) {
@@ -357,7 +371,7 @@ public class Game extends GameApplication {
 					FXGL.getSceneService().pushSubScene(new EndScreen(0));
         		}
 				myHpComp = myHp;
-				FXGL.getGameScene().getViewport().shakeTranslational(10);
+				FXGL.getGameScene().getViewport().shakeTranslational(40);
 			}
 		}
 	}

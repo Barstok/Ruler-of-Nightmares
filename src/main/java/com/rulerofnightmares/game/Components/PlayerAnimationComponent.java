@@ -166,7 +166,7 @@ public class PlayerAnimationComponent extends Component {
 
     private void addHellCircle() {
         if (hellCircleAddLock) return;
-        if (currentLevel >= 5) {
+        if (currentLevel >= 1) {
         	Entity player = this.getEntity();
             for(int x=0 ; x < MAX_FLAMES ; x++){
                 flames.add( new EntityBuilder()
